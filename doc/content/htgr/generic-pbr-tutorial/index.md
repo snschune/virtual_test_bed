@@ -21,3 +21,5 @@ execute all commands in this tutorial except for swapping
 [Step 1: An axisymmetric flow channel with porosity](generic-pbr-tutorial/step1.md)
 
 [Step 2: Adding pressure drop](generic-pbr-tutorial/step2.md)
+
+[Step 3: Adding a cavity above the bed](generic-pbr-tutorial/step3.md)
