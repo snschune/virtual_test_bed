@@ -1,3 +1,4 @@
+# Authored: Joseph R. Brennan, Mentor: Mustafa K. Jaradat, Sebastian Schunert, and Paolo Balestra
 bed_radius = 1.2
 outlet_pressure = 5.5e6
 T_fluid = 300
@@ -10,7 +11,7 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
             
 [Mesh]
   type = MeshGeneratorMesh
-# Mesh id's/number paired witha block to represent in creating the mesh
+  # Mesh id's/number paired witha block to represent in creating the mesh
   block_id = '1 2 3 4 5 6 7 8 9 10 11 12 13'
   block_name = 'pebble_bed
                 cavity
@@ -101,171 +102,171 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
                    2 2 2 2 2 2  5 5  5  5 5 5  7  4 9 9 10 11 12 13
                    4 4 4 4 4 4  4 4  4  4 4 4  4  4 9 9 10 11 12 13
                    9 9 9 9 9 9  9 9  9  9 9 9  9  9 9 9 10 11 12 13'
- []
+  []
 
  # Creating Boundaries
- [inlet]
-  type = SideSetsAroundSubdomainGenerator
-  input = cartesian_mesh
-  block = 7
-  new_boundary = inlet
-  normal = '0 -1 0'
- []
+  [inlet]
+    type = SideSetsAroundSubdomainGenerator
+    input = cartesian_mesh
+    block = 7
+    new_boundary = inlet
+    normal = '0 -1 0'
+  []
 
-[riser_top]
-  type = SideSetsAroundSubdomainGenerator
-  input = inlet
-  block = 7
-  new_boundary = riser_top
-  normal = '0 1 0'
-[]
+  [riser_top]
+    type = SideSetsAroundSubdomainGenerator
+    input = inlet
+    block = 7
+    new_boundary = riser_top
+    normal = '0 1 0'
+  []
 
- [riser_right]
-  type = SideSetsAroundSubdomainGenerator
-  input = riser_top
-  block = 7
-  new_boundary = riser_right
-  normal = '1 0 0'
- []
+  [riser_right]
+    type = SideSetsAroundSubdomainGenerator
+    input = riser_top
+    block = 7
+    new_boundary = riser_right
+    normal = '1 0 0'
+  []
 
- [riser_left]
-  type = ParsedGenerateSideset
-  input = riser_right
-  combinatorial_geometry = 'abs(x-1.701) < 1e-3'
-  included_subdomains = 7
-  included_neighbors = 4
-  new_sideset_name = riser_left
-[]
+  [riser_left]
+    type = ParsedGenerateSideset
+    input = riser_right
+    combinatorial_geometry = 'abs(x-1.701) < 1e-3'
+    included_subdomains = 7
+    included_neighbors = 4
+    new_sideset_name = riser_left
+  []
 
-[upper_plenum_top]
-  type = SideSetsAroundSubdomainGenerator
-  input = riser_left
-  block = 5
-  new_boundary = upper_plenum_top
-  normal = '0 1 0'
-[]
+  [upper_plenum_top]
+    type = SideSetsAroundSubdomainGenerator
+    input = riser_left
+    block = 5
+    new_boundary = upper_plenum_top
+    normal = '0 1 0'
+  []
 
-[upper_plenum_bottom]
-  type = ParsedGenerateSideset
-  input = upper_plenum_top
-  combinatorial_geometry = 'abs(y - 11.335) < 1e-3'
-  included_subdomains = 5
-  included_neighbors = 4
-  new_sideset_name = upper_plenum_bottom
-[] 
+  [upper_plenum_bottom]
+    type = ParsedGenerateSideset
+    input = upper_plenum_top
+    combinatorial_geometry = 'abs(y - 11.335) < 1e-3'
+    included_subdomains = 5
+    included_neighbors = 4
+    new_sideset_name = upper_plenum_bottom
+  [] 
 
-[cavity_top]
-  type = SideSetsAroundSubdomainGenerator
-  input = upper_plenum_bottom
-  block = 2
-  new_boundary = cavity_top
-  normal = '0 1 0'
-[]
+  [cavity_top]
+    type = SideSetsAroundSubdomainGenerator
+    input = upper_plenum_bottom
+    block = 2
+    new_boundary = cavity_top
+    normal = '0 1 0'
+  []
 
-[cavity_left]
-  type = SideSetsAroundSubdomainGenerator
-  input = cavity_top
-  block = 2
-  new_boundary = cavity_left
-  normal = '-1 0 0'
-[]
+  [cavity_left]
+    type = SideSetsAroundSubdomainGenerator
+    input = cavity_top
+    block = 2
+    new_boundary = cavity_left
+    normal = '-1 0 0'
+  []
 
-[bed_left]
-  type = SideSetsAroundSubdomainGenerator
-  input = cavity_left
-  block = 1
-  new_boundary = bed_left
-  normal = '-1 0 0'
-[]
+  [bed_left]
+    type = SideSetsAroundSubdomainGenerator
+    input = cavity_left
+    block = 1
+    new_boundary = bed_left
+    normal = '-1 0 0'
+  []
 
-[bed_right]
-  type = SideSetsAroundSubdomainGenerator
-  input = bed_left
-  block = 1
-  new_boundary = bed_right
-  normal = '1 0 0'
-[]
+  [bed_right]
+    type = SideSetsAroundSubdomainGenerator
+    input = bed_left
+    block = 1
+    new_boundary = bed_right
+    normal = '1 0 0'
+  []
 
-[bottom_reflector_left]
-  type = SideSetsAroundSubdomainGenerator
-  input = bed_right
-  block = 3
-  new_boundary = bottom_reflector_left
-  normal = '-1 0 0'
-[]
+  [bottom_reflector_left]
+    type = SideSetsAroundSubdomainGenerator
+    input = bed_right
+    block = 3
+    new_boundary = bottom_reflector_left
+    normal = '-1 0 0'
+  []
 
-[bottom_reflector_right]
-  type = SideSetsAroundSubdomainGenerator
-  input = bottom_reflector_left
-  block = 3
-  new_boundary = bottom_reflector_right
-  normal = '1 0 0'
-[]
+  [bottom_reflector_right]
+    type = SideSetsAroundSubdomainGenerator
+    input = bottom_reflector_left
+    block = 3
+    new_boundary = bottom_reflector_right
+    normal = '1 0 0'
+  []
 
-[bottom_plenum_left]
-  type = SideSetsAroundSubdomainGenerator
-  input = bottom_reflector_right
-  block = 6
-  new_boundary = bottom_plenum_left
-  normal = '-1 0 0'
-[]
+  [bottom_plenum_left]
+    type = SideSetsAroundSubdomainGenerator
+    input = bottom_reflector_right
+    block = 6
+    new_boundary = bottom_plenum_left
+    normal = '-1 0 0'
+  []
 
-[bottom_plenum_bottom]
-  type = SideSetsAroundSubdomainGenerator
-  input = bottom_plenum_left
-  block = 6
-  new_boundary = bottom_plenum_bottom
-  normal = '0 -1 0'
-[]
+  [bottom_plenum_bottom]
+    type = SideSetsAroundSubdomainGenerator
+    input = bottom_plenum_left
+    block = 6
+    new_boundary = bottom_plenum_bottom
+    normal = '0 -1 0'
+  []
 
-[bottom_plenum_top]
- type = ParsedGenerateSideset
- input = bottom_plenum_bottom
- combinatorial_geometry = 'abs(y-1.967) < 1e-3'
- included_subdomains = 6
- included_neighbors = 4
- new_sideset_name = bottom_plenum_top
-[]
+  [bottom_plenum_top]
+   type = ParsedGenerateSideset
+   input = bottom_plenum_bottom
+   combinatorial_geometry = 'abs(y-1.967) < 1e-3'
+   included_subdomains = 6
+   included_neighbors = 4
+   new_sideset_name = bottom_plenum_top
+  []
 
-[control_rod_right]
+  [control_rod_right]
     type = SideSetsAroundSubdomainGenerator
     input = bottom_plenum_top
     block = 8
     new_boundary = control_rod_right
     normal = '1 0 0'
-[]
+  []
 
-[control_rod_left]
+  [control_rod_left]
     type = SideSetsAroundSubdomainGenerator
     input = control_rod_right
     block = 8
     new_boundary = control_rod_left
     normal = '-1 0 0'
-[]
+  []
 
-[control_rods_bttom_plenum]
+  [control_rods_bttom_plenum]
     type = SideSetsBetweenSubdomainsGenerator
     input = control_rod_left
     new_boundary = control_rod_outlet
     primary_block = 8 
     paired_block = 6
-[]
+  []
 
- [outlet]
-  type = SideSetsAroundSubdomainGenerator
-  input = control_rods_bttom_plenum
-  block = 6
-  new_boundary = outlet
-  normal = '1 0 0'
- []
+  [outlet]
+    type = SideSetsAroundSubdomainGenerator
+    input = control_rods_bttom_plenum
+    block = 6
+    new_boundary = outlet
+    normal = '1 0 0'
+  []
 
  # Renaming Boundaries
- [rename_boundaries]
-  type = RenameBoundaryGenerator
-  input = outlet
-  old_boundary = 'riser_right riser_top upper_plenum_top cavity_top cavity_left bed_left bottom_reflector_left bottom_plenum_left bottom_plenum_bottom riser_left bed_right bottom_reflector_right bottom_plenum_top control_rod_left control_rod_right'
-  new_boundary = 'in in in in ex ex ex ex in in in in in in in'
- []
+  [rename_boundaries]
+    type = RenameBoundaryGenerator
+    input = outlet
+    old_boundary = 'riser_right riser_top upper_plenum_top cavity_top cavity_left bed_left bottom_reflector_left bottom_plenum_left bottom_plenum_bottom riser_left bed_right bottom_reflector_right bottom_plenum_top control_rod_left control_rod_right'
+    new_boundary = 'in in in in ex ex ex ex in in in in in in in'
+  []
 
  coord_type = RZ
 
@@ -276,7 +277,6 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
   [fluid_properties_obj]
     type = HeliumFluidProperties
   []
-
 []
 
 [Functions]
@@ -287,42 +287,42 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
   []
 
 # Created a constant velocity
-[flow_vel_fn]
-  type = PiecewiseLinear
-  x = '0'
-  y = '${flow_vel}'
-[]
+  [flow_vel_fn]
+    type = PiecewiseLinear
+    x = '0'
+    y = '${flow_vel}'
+  []
 []
 
 [Variables]
-    # All blocks with solid with a initial temperature
-    [T_solid]
-      type = INSFVEnergyVariable
-      initial_condition = 300
-        block = 'pebble_bed
-                 bottom_reflector
-                 side_reflector
-                 riser
-                 upper_plenum
-                 bottom_plenum
-                 control_rods
-                 carbon_bricks
-                 refl_barrel_gap
-                 core_barrel
-                 barrel_rpv_gap
-                 rpv'
-    []
-    # All blocks with flow to develop tempurature in the system
-    [T_fluid]
-     type = INSFVEnergyVariable
-     block = 'pebble_bed 
-              cavity 
-              bottom_reflector 
-              upper_plenum 
-              bottom_plenum 
-              riser 
-              control_rods'
-    []
+  # All blocks with solid with a initial temperature
+  [T_solid]
+    type = INSFVEnergyVariable
+    initial_condition = 300
+    block = 'pebble_bed
+             bottom_reflector
+             side_reflector
+             riser
+             upper_plenum
+             bottom_plenum
+             control_rods
+             carbon_bricks
+             refl_barrel_gap
+             core_barrel
+             barrel_rpv_gap
+             rpv'
+  []
+  # All blocks with flow to develop tempurature in the system
+  [T_fluid]
+    type = INSFVEnergyVariable
+    block = 'pebble_bed 
+             cavity 
+             bottom_reflector 
+             upper_plenum 
+             bottom_plenum 
+             riser 
+             control_rods'
+  []
    
   [superficial_vel_x]
     type = PINSFVSuperficialVelocityVariable
@@ -348,25 +348,23 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
 []
 
 [AuxVariables]
-
-    [power_density]
-        type = MooseVariableFVReal
-        #initial_condition = 0
-        block = 'pebble_bed'
-      []
-    
-    []
+  [power_density]
+    type = MooseVariableFVReal
+    #initial_condition = 0
+    block = 'pebble_bed'
+  [] 
+[]
 
 [ICs]
 
-[T_solid_ic_1]
-  type = ConstantIC
-  variable = T_fluid
-  value = 300
-  block = 'pebble_bed'
-[]
+  [T_solid_ic_1]
+    type = ConstantIC
+    variable = T_fluid
+    value = 300
+    block = 'pebble_bed'
+  []
 
-[T_solid_ic_2]
+  [T_solid_ic_2]
     type = ConstantIC
     variable = T_fluid
     value = 300.000001
@@ -385,63 +383,62 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     block = 'pebble_bed'
   []
 
-# Initial condtions of the system to help develop flow
-[ic_vel_y_pb]
-  type = ConstantIC
-  variable = superficial_vel_y
-  value = '-1.08191'
-  block = 'pebble_bed'
-[]
+ # Initial condtions of the system to help develop flow
+  [ic_vel_y_pb]
+    type = ConstantIC
+    variable = superficial_vel_y
+    value = '-1.08191'
+    block = 'pebble_bed'
+  []
 
-[ic_vel_y_cr]
-  type = ConstantIC
-  variable = superficial_vel_y
-  value = '-0.297307'
-  block = 'control_rods'
-[]
+  [ic_vel_y_cr]
+    type = ConstantIC
+    variable = superficial_vel_y
+    value = '-0.297307'
+    block = 'control_rods'
+  []
 
-[ic_vel_y_ca]
-  type = ConstantIC
-  variable = superficial_vel_y
-  value = '-0.806784'
-  block = 'cavity'
-[]
+  [ic_vel_y_ca]
+    type = ConstantIC
+    variable = superficial_vel_y
+    value = '-0.806784'
+    block = 'cavity'
+  []
 
-[ic_vel_y_rs]
-  type = ConstantIC
-  variable = superficial_vel_y
-  value = '2.73133'
-  block = 'riser'
-[]
+  [ic_vel_y_rs]
+    type = ConstantIC
+    variable = superficial_vel_y
+    value = '2.73133'
+    block = 'riser'
+  []
 
-[ic_vel_y_br]
-  type = ConstantIC
-  variable = superficial_vel_y
-  value = '-1.00524'
-  block = 'bottom_reflector'
-[]
+  [ic_vel_y_br]
+    type = ConstantIC
+    variable = superficial_vel_y
+    value = '-1.00524'
+    block = 'bottom_reflector'
+  []
 
-[ic_vel_y_bp]
-  type = ConstantIC
-  variable = superficial_vel_y
-  value = '-0.300878'
-  block = 'bottom_plenum'
-[]
+  [ic_vel_y_bp]
+    type = ConstantIC
+    variable = superficial_vel_y
+    value = '-0.300878'
+    block = 'bottom_plenum'
+  []
 
-[ic_vel_x_bp]
-  type = ConstantIC
-  variable = superficial_vel_x
-  value = '0.412277'
-  block = 'bottom_plenum'
-[]
+  [ic_vel_x_bp]
+    type = ConstantIC
+    variable = superficial_vel_x
+    value = '0.412277'
+    block = 'bottom_plenum'
+  []
 
-[ic_vel_x_up]
-  type = ConstantIC
-  variable = superficial_vel_x
-  value = '-0.94893'
-  block = 'upper_plenum'
-[]
-
+  [ic_vel_x_up]
+    type = ConstantIC
+    variable = superficial_vel_x
+    value = '-0.94893'
+    block = 'upper_plenum'
+  []
 []
 
 [FVKernels]
@@ -480,7 +477,6 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     h_solid_fluid = 'alpha'
     block = 'pebble_bed bottom_reflector upper_plenum bottom_plenum riser control_rods'
   []
-
 []
 
 
@@ -652,12 +648,16 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
   []
   # All blocks with flow
   [alpha_mat]
-  type = ADGenericFunctorMaterial
-  prop_names = 'alpha'
-  prop_values = '2e4'
-  block = 'pebble_bed bottom_reflector upper_plenum riser control_rods bottom_plenum'
+    type = ADGenericFunctorMaterial
+    prop_names = 'alpha'
+    prop_values = '2e4'
+    block = 'pebble_bed
+             bottom_reflector 
+             upper_plenum 
+             riser 
+             control_rods 
+             bottom_plenum'
   []
-
 []
 
 [Executioner]
@@ -691,18 +691,18 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
    vel_y = 'superficial_vel_y'
    boundary = 'inlet'
    rhie_chow_user_object = pins_rhie_chow_interpolator
-[]
+  []
 
- [outlet_mfr]
-   type = VolumetricFlowRate
-   advected_quantity = rho
-   vel_x = 'superficial_vel_x'
-   vel_y = 'superficial_vel_y'
-   boundary = 'outlet'
-   rhie_chow_user_object = pins_rhie_chow_interpolator
- []
+  [outlet_mfr]
+    type = VolumetricFlowRate
+    advected_quantity = rho
+    vel_x = 'superficial_vel_x'
+    vel_y = 'superficial_vel_y'
+    boundary = 'outlet'
+    rhie_chow_user_object = pins_rhie_chow_interpolator
+  []
 
- [cr_outlet_mfr]
+  [cr_outlet_mfr]
     type = VolumetricFlowRate
     advected_quantity = rho
     vel_x = 'superficial_vel_x'
@@ -711,41 +711,41 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     rhie_chow_user_object = pins_rhie_chow_interpolator
   []
 
- [inlet_pressure]
-  type = SideAverageValue
-  variable = pressure
-  boundary = inlet
-  outputs = none
- []
+  [inlet_pressure]
+    type = SideAverageValue
+    variable = pressure
+    boundary = inlet
+    outputs = none
+  []
 
- [outlet_pressure]
-  type = SideAverageValue
-  variable = pressure
-  boundary = outlet
-  outputs = none
- [] 
+  [outlet_pressure]
+    type = SideAverageValue
+    variable = pressure
+    boundary = outlet
+    outputs = none
+  [] 
 
- [pressure_drop]
-  type = ParsedPostprocessor
-  pp_names = 'inlet_pressure outlet_pressure'
-  function = 'inlet_pressure - outlet_pressure'
- []
+  [pressure_drop]
+    type = ParsedPostprocessor
+    pp_names = 'inlet_pressure outlet_pressure'
+    function = 'inlet_pressure - outlet_pressure'
+  []
 
- [integral_density]
-  type = ADElementIntegralFunctorPostprocessor
-  functor = rho
-  outputs = none
-  block = '1 2 3 5 6 7 8'
- []
+  [integral_density]
+    type = ADElementIntegralFunctorPostprocessor
+    functor = rho
+    outputs = none
+    block = '1 2 3 5 6 7 8'
+  []
 
- [average_density]
-  type = ParsedPostprocessor
-  pp_names = 'volume integral_density'
-  function = 'integral_density / volume'
- []
+  [average_density]
+    type = ParsedPostprocessor
+    pp_names = 'volume integral_density'
+    function = 'integral_density / volume'
+  []
 
- [integral_mu]
-  type = ADElementIntegralFunctorPostprocessor
+  [integral_mu]
+    type = ADElementIntegralFunctorPostprocessor
     functor = mu
     outputs = none
     block = '1 2 3 5 6 7 8'
@@ -754,62 +754,55 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
   [average_mu]
     type = ParsedPostprocessor
     pp_names = 'volume integral_mu'
-   function = 'integral_mu / volume'
+    function = 'integral_mu / volume'
   []
 
   [area]
-   type = AreaPostprocessor
-   boundary = outlet
-   outputs = none
+    type = AreaPostprocessor
+    boundary = outlet
+    outputs = none
   []
 
   [volume]
     type = VolumePostprocessor
-   []
+  []
 
-[total_power]
-type = FunctionElementIntegral
-function = heat_source_fn
-block = pebble_bed
-[]
+  [total_power]
+    type = FunctionElementIntegral
+    function = heat_source_fn
+    block = pebble_bed
+  []
 
-[pbpower_density]
+  [pbpower_density]
     type = ParsedPostprocessor
     pp_names = 'core_volume total_power'
     function = 'total_power / core_volume'
-[] 
+  [] 
 
- [Enthalpy_inlet]
-  type = VolumetricFlowRate
-   boundary = inlet
-   vel_x = superficial_vel_x
-   vel_y = superficial_vel_y
-   rhie_chow_user_object = 'pins_rhie_chow_interpolator'
-   advected_quantity = 'rho_cp_temp'
-   advected_interp_method = 'upwind'
+  [Enthalpy_inlet]
+    type = VolumetricFlowRate
+    boundary = inlet
+    vel_x = superficial_vel_x
+    vel_y = superficial_vel_y
+    rhie_chow_user_object = 'pins_rhie_chow_interpolator'
+    advected_quantity = 'rho_cp_temp'
+    advected_interp_method = 'upwind'
   []
 
   [Enthalpy_outlet]
-   type = VolumetricFlowRate
-   boundary = outlet
-   vel_x = superficial_vel_x
-   vel_y = superficial_vel_y
-   rhie_chow_user_object = 'pins_rhie_chow_interpolator'
-   advected_quantity = 'rho_cp_temp'
-   advected_interp_method = 'upwind'
-  []
-
-  [heat_source]
-   type = ElementIntegralFunctorPostprocessor
-   functor = heat_source_fn
-   block = pebble_bed
+    type = VolumetricFlowRate
+    boundary = outlet
+    vel_x = superficial_vel_x
+    vel_y = superficial_vel_y
+    rhie_chow_user_object = 'pins_rhie_chow_interpolator'
+    advected_quantity = 'rho_cp_temp'
+    advected_interp_method = 'upwind'
   []
 
   [core_volume]
     type = VolumePostprocessor
     block = 'pebble_bed'
   []
-
 []
 
 [Outputs]
