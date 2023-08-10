@@ -23,3 +23,13 @@ execute all commands in this tutorial except for swapping
 [Step 2: Adding pressure drop](generic-pbr-tutorial/step2.md)
 
 [Step 3: Adding a cavity above the bed](generic-pbr-tutorial/step3.md)
+
+[Step 4: Heating](generic-pbr-tutorial/step4.md)
+
+[Step 5: Adding Reflectors](generic-pbr-tutorial/step5.md)
+
+[Step 6: Adding Plenums and Riser](generic-pbr-tutorial/step6.md)
+
+[Step 7: Adding Control Rod Bypass](generic-pbr-tutorial/step7.md)
+
+[Step 8: Adding the Outer Parts of the Reactor](generic-pbr-tutorial/step8.md)
