@@ -28,7 +28,7 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
   [rename_blocks]
     type = RenameBlockGenerator
     old_block = '1 2'
-    new_block = 'bed cavity'
+    new_block = 'pebble_bed cavity'
     input = gen
   []
   coord_type = RZ
@@ -43,42 +43,45 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
 [Functions]
   [heat_source_fn]
     type = ParsedFunction
-    expression = '(1.70868)*(-386.03*(y-2.40538)^5 - 921.11*(y-2.40538)^4 + 70874*(y-2.40538)^3 - 270123*(y-2.40538)^2 + 803073*(y-2.40538) + 389259)'
+    expression = '1.7411862 * (-386.03 * pow(y-2.40538, 5) - 921.11 * pow(y-2.40538, 4) + 70874 * pow(y-2.40538, 3) 
+                               -270123 * pow(y-2.40538, 2) + 803073 * (y-2.40538) + 389259)'
   []
 []
 
 [Variables]
-    [T_solid]
-      type = INSFVEnergyVariable
-      initial_condition = ${T_inlet}
-        block = bed
-    []
+  [T_solid]
+    type = INSFVEnergyVariable
+    initial_condition = ${T_inlet}
+    block = 'pebble_bed'
+  []
 []
 
 [FVKernels]
   [energy_storage]
     type = PINSFVEnergyTimeDerivative
     variable = T_solid
-    rho = 2000
-    cp = 300
+    rho = rho_s
+    cp = cp_s
     is_solid = true
     scaling = ${thermal_mass_scaling}
-    porosity = 0
+    porosity = porosity
   []
 
-  [solid_energy_diffusion_core]
+  [solid_energy_diffusion]
     type = PINSFVEnergyAnisotropicDiffusion
     variable = T_solid
     kappa = 'effective_thermal_conductivity'
     effective_diffusivity = true
+    # porosity is not used because we already provide
+    # an effective thermal conductivity
     porosity = 1
   []
 
-  [heat]
+  [source]
     type = FVBodyForce
     variable = T_solid
     function = heat_source_fn
-    block = 'bed'
+    block = 'pebble_bed'
   []
 
   [convection_pebble_bed_fluid]
@@ -116,7 +119,7 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     energy_inlet_function = '300'
     energy_wall_types = 'heatflux heatflux'
     energy_wall_function = '0 0'
-    ambient_convection_blocks = 'bed'
+    ambient_convection_blocks = 'pebble_bed'
     ambient_convection_alpha = 'alpha'
     ambient_temperature = 'T_solid'
   []
@@ -140,7 +143,7 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     porosity = porosity
     T_fluid = ${T_fluid}
     T_solid = ${T_fluid}
-    block = bed
+    block = 'pebble_bed'
   []
 
   [drag_cavity]
@@ -153,35 +156,42 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
   [porosity_material]
     type = ADPiecewiseByBlockFunctorMaterial
     prop_name = porosity
-    subdomain_to_prop_value = 'bed    ${bed_porosity}
+    subdomain_to_prop_value = 'pebble_bed ${bed_porosity}
                                cavity 1'
   []
+
   [effective_solid_thermal_conductivity_pb]
     type = ADGenericVectorFunctorMaterial
     prop_names = 'effective_thermal_conductivity'
     prop_values = '20 20 20'
-    block = 'bed'
+    block = 'pebble_bed'
   []
+
   [alpha_mat]
-  type = ADGenericFunctorMaterial
-  prop_names = 'alpha'
-  prop_values = '2e4'
-  block = bed
+    type = ADGenericFunctorMaterial
+    prop_names = 'alpha'
+    prop_values = '2e4'
+    block = 'pebble_bed'
+  []
+
+  [generic_mat]
+    type = ADGenericFunctorMaterial
+    prop_names = 'rho_s  cp_s'
+    prop_values = '2000  300'
   []
 []
 
 [Executioner]
   type = Transient
-  end_time = 100
+  end_time = 10000
   [TimeStepper]
     type = IterationAdaptiveDT
     iteration_window = 2
     optimal_iterations = 8
     cutback_factor = 0.8
     growth_factor = 2
-    dt = 1e-3
+    dt = 1e-1
   []
-  dtmax = 5
   line_search = l2
   solve_type = 'NEWTON'
   petsc_options_iname = '-pc_type -pc_factor_shift_type'
@@ -231,63 +241,39 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     function = 'inlet_pressure - outlet_pressure'
   []
 
-  [integral_density]
-    type = ADElementIntegralFunctorPostprocessor
-    functor = rho
+  [enthalpy_inlet]
+    type = VolumetricFlowRate
+    boundary = top
+    vel_x = superficial_vel_x
+    vel_y = superficial_vel_y
+    rhie_chow_user_object = 'pins_rhie_chow_interpolator'
+    advected_quantity = 'rho_cp_temp'
+    advected_interp_method = 'upwind'
     outputs = none
   []
 
-  [average_density]
-    type = ParsedPostprocessor
-    pp_names = 'volume integral_density'
-    function = 'integral_density / volume'
-  []
-
-  [integral_mu]
-    type = ADElementIntegralFunctorPostprocessor
-    functor = mu
-    outputs = none
-  []
-
-  [average_mu]
-    type = ParsedPostprocessor
-    pp_names = 'volume integral_mu'
-    function = 'integral_mu / volume'
-  []
-
-  [area]
-    type = AreaPostprocessor
+  [enthalpy_outlet]
+    type = VolumetricFlowRate
     boundary = bottom
+    vel_x = superficial_vel_x
+    vel_y = superficial_vel_y
+    rhie_chow_user_object = 'pins_rhie_chow_interpolator'
+    advected_quantity = 'rho_cp_temp'
+    advected_interp_method = 'upwind'
     outputs = none
   []
 
-  [volume]
-    type = VolumePostprocessor
+  [enthalpy_balance]
+    type = ParsedPostprocessor
+    pp_names = 'enthalpy_inlet enthalpy_outlet'
+    function = 'enthalpy_inlet + enthalpy_outlet'
   []
 
-  [Enthalpy_inlet]
-  type = VolumetricFlowRate
-  boundary = top
-  vel_x = superficial_vel_x
-  vel_y = superficial_vel_y
-  rhie_chow_user_object = 'pins_rhie_chow_interpolator'
-  advected_quantity = 'rho_cp_temp'
-  advected_interp_method = 'upwind'
- []
- [Enthalpy_outlet]
-  type = VolumetricFlowRate
-  boundary = bottom
-  vel_x = superficial_vel_x
-  vel_y = superficial_vel_y
-  rhie_chow_user_object = 'pins_rhie_chow_interpolator'
-  advected_quantity = 'rho_cp_temp'
-  advected_interp_method = 'upwind'
- []
- [heat_source]
-  type = ElementIntegralFunctorPostprocessor
-  functor = heat_source_fn
-  block = bed
- []
+  [heat_source_integral]
+    type = ElementIntegralFunctorPostprocessor
+    functor = heat_source_fn
+    block = 'pebble_bed'
+  []
 []
 
 [Outputs]
