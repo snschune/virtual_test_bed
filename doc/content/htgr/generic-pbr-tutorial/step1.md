@@ -7,8 +7,8 @@ channel has no pressure drop or heat source. The inflow boundary
 is situated at the top, the outflow boundary is situated at the bottom,
 and the left and right boundaries are slip walls.
 
-We expect that velocity in the y-direction and pressure are uniform in the flow channel,
-and velocity in the x-direction is 0. The heat equation is not solved at all
+We expect that velocity in the y-direction and pressure are uniform in the flow channel
+and velocity in the x-direction is 0. The heat equation is not solved at all,
 and the fluid temperature will not be added as a variable.
 
 This tutorial uses the finite volume method to discretize the thermal-hydraulics equations.
@@ -21,15 +21,15 @@ We define the bed height and bed radius at the top of the input file.
 !listing htgr/generic-pbr-tutorial/step1.i start=subdomains end=bed_porosity
 
 Then we use the `GeneratedMeshGenerator` to create a Cartesian mesh
-of the appropriate height ad width. Note, how we use the ${x} syntax, where x
+of the desired height and width. Note, how we use the ${x} syntax, where x
 stands for any defined parameter. We
 
 !listing htgr/generic-pbr-tutorial/step1.i block=Mesh
 
 The parameters of `GeneratedMeshGenerator` are explained [here](https://mooseframework.inl.gov/source/meshgenerators/GeneratedMeshGenerator.html).
-In 2D geometry, the boundaries are named bottom (id=0), right (id=1), top (id=2), and left (id=3).
+In two-dimensional geometry, the boundaries are named bottom (id=0), right (id=1), top (id=2), and left (id=3).
 The line `coord_type = RZ` sets the coordinate system to be axisymmetric (aka RZ). The symmetry axis
-defaults to be the y-axis which is what we want so we do not need to set it explicitly.
+defaults to the y-axis, which is what we want, so we do not need to set it explicitly.
 
 To visualize the geometry, you can run:
 
@@ -42,23 +42,23 @@ It is shown in [step1geom].
 !media generic-pbr-tutorial/step1_geometry.png
         style=width:10%
         id=step1geom
-        caption=Geometry for step 1.
+        caption=Geometry for Step 1.
 
-### Setting the fluid properties
+### Setting the Fluid Properties
 
 Fluid properties are set by first defining a `HeliumFluidProperties` fluid properties object
-and second creating a material that inserts the fluid properties into functors (if you do not know what a functor is then click [here](https://mooseframework.inl.gov/moose/syntax/Materials/)).
+and second by creating a material that inserts the fluid properties into functors (if you do not know what a functor is then click [here](https://mooseframework.inl.gov/moose/syntax/Materials/)).
 
-The first task is performed by the following input syntax
+The first task is performed by the following input syntax:
 
 !listing htgr/generic-pbr-tutorial/step1.i block=FluidProperties
 
-The second task is performed by the `GeneralFunctorFluidProps` object.
+The second task is performed by the `GeneralFunctorFluidProps` object:
 
 !listing htgr/generic-pbr-tutorial/step1.i block=Materials
 
 This object takes pressure and temperature provided as variables to parameters
-`pressure` and `T_fluid`, respectively, and computes fluid properties such as
+`pressure` and `T_fluid`, respectively, and computes fluid properties, such as
 density and viscosity. Density and viscosity are named `rho` and `mu`.
 Note that `T_fluid` is set to a constant value in this input file because
 we do not solve the heat equation and therefore have no fluid temperature defined
@@ -67,16 +67,16 @@ as a variable.
 This object also requires providing functors to the `porosity`, `speed`, and `characteristic_length`
 parameters.
 
-Porosity is defined as auxiliary variable here:
+Porosity is defined as an auxiliary variable here:
 
 !listing htgr/generic-pbr-tutorial/step1.i block=AuxVariables
 
-and set equal to the `bed_porosity` parameter that is equal to 0.39.
+and set equal to the `bed_porosity` parameter of 0.39.
 `speed` is a functor that is computed automatically by the Navier-Stokes FV action,
-and `characteristic_length` is only used for computing Reynolds numbers which are not
-required in step 1; therefore we set `characteristic_length = 1` for now.
+and `characteristic_length` is only used for computing Reynolds numbers, which are not
+required in Step 1; therefore, we set `characteristic_length = 1` for now.
 
-### Setting up the thermal-hydraulics problem
+### Setting up the Thermal-Hydraulics Problem
 
 The thermal-hydraulics problem is set up using the finite volume Navier-Stokes action.
 This action is discussed in detail [here](https://mooseframework.inl.gov/source/actions/NSFVAction.html).
@@ -89,7 +89,7 @@ Therefore, each line will be explained.
 
 !listing htgr/generic-pbr-tutorial/step1.i start=compressibility end=porous_medium_treatment
 
-This line indicates that weakly compressible fluid equations are solved. These equations allow the density of the fluid to vary and the discretization methods assume Mach numbers of less than 0.2
+This line indicates that weakly compressible fluid equations are solved. These equations allow the density of the fluid to vary, and the discretization methods assume Mach numbers of less than 0.2.
 For compressible flows in reactors, the weakly compressible formulation is the most commonly used equation set.
 
 !listing htgr/generic-pbr-tutorial/step1.i start=porous_medium_treatment end=density
@@ -113,7 +113,7 @@ Initial conditions for the velocity and pressure are defined by the lines:
 
 !listing htgr/generic-pbr-tutorial/step1.i block=NavierStokesFV start=initial_velocity end=inlet_boundaries
 
-Note that since we solve a pseudo transient, the initial conditions should be interpreted
+Note that, since we solve a pseudo-transient, the initial conditions should be interpreted
 as initial guesses of the solution.
 We set the initial guess of the velocity to 0 and the initial guess of pressure to $5.4$ MPa.
 The initial condition for pressure is mismatched with the outlet pressure to make the problem
@@ -124,7 +124,7 @@ The boundary conditions are set by these lines:
 !listing htgr/generic-pbr-tutorial/step1.i block=NavierStokesFV start=inlet_boundaries end=[]
 
 The top boundary is the inlet boundary, where we specify the inlet velocity. The inlet velocity
-is $(0, -v_{in})$ where we note that the velocity is downward leading to the negative sign.
+is $(0, -v_{in})$ where we note that the velocity is downward, leading to the negative sign.
 The left and right boundaries are set to slip walls. The bottom boundary is set to a constant pressure outlet.
 
 The relevant values used for substituting the ${variable_name} expressions are computed
@@ -132,7 +132,7 @@ at the beginning of the input file:
 
 !listing htgr/generic-pbr-tutorial/step1.i start=outlet_pressure end=[Mesh]
 
-### Checking mass conservation
+### Checking Mass Conservation
 
 We use postprocessors to compute the inlet and outlet mass flow rates.
 
@@ -155,11 +155,11 @@ postprocessors to be identical.
 
 ### Executioner
 
-The executioner is explained in detail [here](https://mooseframework.inl.gov/syntax/Executioner/). For step 1 we use these specifications:
+The executioner is explained in detail [here](https://mooseframework.inl.gov/syntax/Executioner/). For Step 1 we use these specifications:
 
 !listing htgr/generic-pbr-tutorial/step1.i block=Executioner
 
-We run a transient to the `end_time` of 100 seconds. The time steps are selected adaptively based on the number of nonlinear iterations used by the previous timestep. Details on `IterationAdaptiveDT` can be found [here](https://mooseframework.inl.gov/source/timesteppers/IterationAdaptiveDT.html). A maximum timestep of $5$ seconds is used. We use Newton's method to solve the problem and solve the linear problem using lu decomposition. Relative and absolute convergence tolerances are set to $10^{-6}$.
+We run a transient to the `end_time` of 100 seconds. The time steps are selected adaptively based on the number of nonlinear iterations used by the previous timestep. Details on `IterationAdaptiveDT` can be found [here](https://mooseframework.inl.gov/source/timesteppers/IterationAdaptiveDT.html). A maximum timestep of $5$ seconds is used. We use Newton's method to solve the problem and solve the linear problem using lower-upper (LU) decomposition. Relative and absolute convergence tolerances are set to $10^{-6}$.
 
 ### Results
 
@@ -170,7 +170,7 @@ Execute `step1.i` by:
 
 Execution should take about 10 seconds. An exodus file `step1_out.e` is created.
 This file contains the pressure and superficial velocity solutions. These are
-constant at $p=5.5$ MPa and $\vec{v}=(0,-1.54191)$ m/s. Since they are not very interesting, they are not plotted here. The three postprocessors at $100$ seconds are:
+constant at $p=5.5$ MPa and $\vec{v}=(0,-1.54191)$ m/s. Since they are not very relevant, they are not plotted here. The three postprocessors at $100$ seconds are:
 
 !listing
 desired_mfr = 6.000000e+01

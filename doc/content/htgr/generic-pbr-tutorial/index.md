@@ -1,4 +1,4 @@
-# Step-by-Step Tutorial for a Generic Pebble Bed HTGR Model in Pronghorn
+# Step-by-Step Tutorial for a Generic Pebble-Bed High-Temperature Gas-Cooled Reactor HTGR Model in Pronghorn
 
 ## Setting up your environment
 
@@ -7,12 +7,12 @@ Navigate to the right virtual test bed directory
 !listing
 cd /path/to/VTB/htgr/generic-pbr-tutorial
 
-and create a link to your pronghorn executable:
+and create a link to your Pronghorn executable:
 
 !listing
 ln -s /path/to/projects/pronghorn/pronghorn-opt
 
-As an INL hpc user you may load the Pronghorn module and then
+As an Idaho National Laboratory High Performance Computing user you may load the Pronghorn module and then
 execute all commands in this tutorial except for swapping
 
 !listing
