@@ -31,13 +31,22 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
 
 [Modules]
   [NavierStokesFV]
+    # general control parameters
     compressibility = 'weakly-compressible'
     porous_medium_treatment = true
+
+    # material property parameters
     density = rho
     dynamic_viscosity = mu
+
+    # porous medium treatment parameters
     porosity = porosity
+
+    # initial conditions
     initial_velocity = '0 0 0'
     initial_pressure = 5.4e6
+
+    # boundary conditions
     inlet_boundaries = top
     momentum_inlet_types = fixed-velocity
     momentum_inlet_function = '0 -${flow_vel}'

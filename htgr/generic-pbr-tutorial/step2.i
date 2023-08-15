@@ -3,7 +3,7 @@ bed_radius = 1.2
 bed_porosity = 0.39
 outlet_pressure = 5.5e6
 T_fluid = 300
-density = 8.62
+density = 8.6545
 pebble_diameter = 0.06
 
 mass_flow_rate = 60.0
@@ -32,13 +32,22 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
 
 [Modules]
   [NavierStokesFV]
+    # general control parameters
     compressibility = 'weakly-compressible'
     porous_medium_treatment = true
+
+    # material property parameters
     density = rho
     dynamic_viscosity = mu
+
+    # porous medium treatment parameters
     porosity = porosity
+
+    # initial conditions
     initial_velocity = '0 0 0'
     initial_pressure = 5.4e6
+
+    # boundary conditions
     inlet_boundaries = top
     momentum_inlet_types = fixed-velocity
     momentum_inlet_function = '0 -${flow_vel}'
@@ -47,6 +56,8 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     outlet_boundaries = bottom
     momentum_outlet_types = fixed-pressure
     pressure_function = ${outlet_pressure}
+
+    # friction control parameters
     friction_types = 'darcy forchheimer'
     friction_coeffs = 'Darcy_coefficient Forchheimer_coefficient'
   []

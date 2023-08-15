@@ -4,8 +4,7 @@ bed_radius = 1.2
 cavity_height = 0.5
 bed_porosity = 0.39
 outlet_pressure = 5.5e6
-T_fluid = 300
-density = 8.62
+density = 8.76
 pebble_diameter = 0.06
 T_inlet = 300
 thermal_mass_scaling = 1
@@ -96,29 +95,49 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
 
 [Modules]
   [NavierStokesFV]
+    # general control parameters
     compressibility = 'weakly-compressible'
     porous_medium_treatment = true
+    add_energy_equation = true
+
+    # material property parameters
     density = rho
     dynamic_viscosity = mu
+    specific_heat = cp
+    thermal_conductivity = k
+
+    # porous medium treatment parameters
     porosity = porosity
     porosity_interface_pressure_treatment = 'bernoulli'
+
+    # initial conditions
     initial_velocity = '0 0 0'
     initial_pressure = 5.4e6
+    initial_temperature = '${T_inlet}'
+
+    # inlet boundary conditions
     inlet_boundaries = top
     momentum_inlet_types = fixed-velocity
     momentum_inlet_function = '0 -${flow_vel}'
+    energy_inlet_types = fixed-temperature
+    energy_inlet_function = '${T_inlet}'
+
+    # wall boundary conditions
     wall_boundaries = 'left right'
     momentum_wall_types = 'slip slip'
+    energy_wall_types = 'heatflux heatflux'
+    energy_wall_function = '0 0'
+
+    # outlet boundary conditions
     outlet_boundaries = bottom
     momentum_outlet_types = fixed-pressure
     pressure_function = ${outlet_pressure}
+
+    # friction control parameters
     friction_types = 'darcy forchheimer'
     friction_coeffs = 'Darcy_coefficient Forchheimer_coefficient'
-    add_energy_equation = true
-    energy_inlet_types = fixed-temperature
-    energy_inlet_function = '300'
-    energy_wall_types = 'heatflux heatflux'
-    energy_wall_function = '0 0'
+
+    # energy equation parameters
     ambient_convection_blocks = 'pebble_bed'
     ambient_convection_alpha = 'alpha'
     ambient_temperature = 'T_solid'
@@ -131,7 +150,7 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     fp = fluid_properties_obj
     porosity = porosity
     pressure = pressure
-    T_fluid = ${T_fluid}
+    T_fluid =  T_fluid
     speed = speed
     characteristic_length = ${pebble_diameter}
   []
@@ -141,8 +160,8 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     fp = fluid_properties_obj
     pebble_diameter =  ${pebble_diameter}
     porosity = porosity
-    T_fluid = ${T_fluid}
-    T_solid = ${T_fluid}
+    T_fluid = T_fluid
+    T_solid = T_solid
     block = 'pebble_bed'
   []
 
@@ -190,7 +209,7 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     optimal_iterations = 8
     cutback_factor = 0.8
     growth_factor = 2
-    dt = 1e-1
+    dt = 0.05
   []
   line_search = l2
   solve_type = 'NEWTON'
