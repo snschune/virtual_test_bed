@@ -1,70 +1,76 @@
 # Authored: Joseph R. Brennan, Mentor: Mustafa K. Jaradat, Sebastian Schunert, and Paolo Balestra
 bed_radius = 1.2
-outlet_pressure = 5.5e6
-T_fluid = 300
-density = 8.62
+outlet_pressure = 5.84e+6
+T_inlet = 533.25
+inlet_density = 5.2532
 pebble_diameter = 0.06
+thermal_mass_scaling = 1
 
-mass_flow_rate = 60.0
+mass_flow_rate = 64.3
 flow_area = ${fparse pi * bed_radius * bed_radius}
-flow_vel = ${fparse mass_flow_rate / flow_area / density}
+flow_vel = ${fparse mass_flow_rate / flow_area / inlet_density}
+
+# scales the heat source to integrate to 200 MW
+power_fn_scaling = 0.9792628
+
+# moves the heat source around axially to have the peak in the right spot
+offset = -0.29119
+
+# the y-coordinate of the top of the core
+top_core = 9.7845
 
 [Mesh]
-  type = MeshGeneratorMesh
   block_id = '1 2 3 4'
   block_name = 'pebble_bed
                 cavity
                 bottom_reflector
                 side_reflector'
-  uniform_refine = 1
- 
+
   [cartesian_mesh]
-   type = CartesianMeshGenerator
-   dim = 2
+    type = CartesianMeshGenerator
+    dim = 2
 
-   dx = ' 0.20 0.20 0.20 0.20 0.20 0.20       
-         0.010 0.055'
+    dx = '0.20 0.20 0.20 0.20 0.20 0.20 0.010 0.055'
 
-   ix = '1 1 1 1 1 1
-         1 1'
+    ix = '1 1 1 1 1 1 1 1'
 
-   dy =  '0.1709 0.1709 0.1709 0.1709 0.1709
-          0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465
-          0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465
-          0.458 0.712'
+    dy =  '0.1709 0.1709 0.1709 0.1709 0.1709
+           0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465
+           0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465
+           0.458 0.712'
 
-   iy = '2 2 1 1 1
-         4 1 1 1 1 1 1 1 1 1
-         1 1 1 1 1 1 1 1 1 4
-         4 2'
+    iy = '2 2 1 1 1
+          4 1 1 1 1 1 1 1 1 1
+          1 1 1 1 1 1 1 1 1 4
+          4 2'
 
-   subdomain_id = '3  3 3 3 3 3  4 4 
-                   3  3 3 3 3 3  4 4 
-                   3  3 3 3 3 3  4 4 
-                   3  3 3 3 3 3  4 4 
-                   3  3 3 3 3 3  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   1  1 1 1 1 1  4 4 
-                   2  2 2 2 2 2  4 4 
-                   4  4 4 4 4 4  4 4'
+    subdomain_id = '3 3 3 3 3 3 4 4
+                    3 3 3 3 3 3 4 4
+                    3 3 3 3 3 3 4 4
+                    3 3 3 3 3 3 4 4
+                    3 3 3 3 3 3 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    1 1 1 1 1 1 4 4
+                    2 2 2 2 2 2 4 4
+                    4 4 4 4 4 4 4 4'
   []
 
   [cavity_top]
@@ -100,9 +106,9 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
   []
 
   [BreakBoundary]
-   type = BreakBoundaryOnSubdomainGenerator
-   input = side_reflector_bottom_reflector
-   boundaries = 'left bottom'
+    type = BreakBoundaryOnSubdomainGenerator
+    input = side_reflector_bottom_reflector
+    boundaries = 'left bottom'
   []
 
   [DeleteBoundary]
@@ -118,8 +124,7 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     new_boundary = 'inlet outlet bed_left bed_left bed_left bed_right bed_right bed_right'
   []
 
- coord_type = RZ
-
+  coord_type = RZ
 []
 
 [FluidProperties]
@@ -131,7 +136,8 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
 [Functions]
   [heat_source_fn]
     type = ParsedFunction
-    expression = '(1.70868)*(-386.03*(y-2.40538)^5 - 921.11*(y-2.40538)^4 + 70874*(y-2.40538)^3 - 270123*(y-2.40538)^2 + 803073*(y-2.40538) + 389259)'
+    expression = '${power_fn_scaling} * (-1.0612e4 * pow(y+${offset}, 4) + 1.5963e5 * pow(y+${offset}, 3) 
+                   -6.2993e5 * pow(y+${offset}, 2) + 1.4199e6 * (y+${offset}) + 5.5402e4)'
   []
 []
 
@@ -139,9 +145,7 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
   [T_solid]
     type = INSFVEnergyVariable
     initial_condition = 300
-    block = 'pebble_bed
-    bottom_reflector
-    side_reflector'
+    block = 'pebble_bed bottom_reflector side_reflector'
   []
 []
 
@@ -149,22 +153,38 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
   [energy_storage]
     type = PINSFVEnergyTimeDerivative
     variable = T_solid
-    rho = 2000
-    cp = 300
+    rho = rho_s
+    cp = cp_s
     is_solid = true
-    scaling = 1
-    porosity = 0
+    scaling = ${thermal_mass_scaling}
+    porosity = porosity
   []
 
-  [solid_energy_diffusion_core]
+  [solid_energy_diffusion_bed]
     type = PINSFVEnergyAnisotropicDiffusion
     variable = T_solid
-    kappa = 'effective_thermal_conductivity'
+    kappa = 'tensor_thermal_conductivity'
     effective_diffusivity = true
+    # porosity is not used because we already provide
+    # an effective thermal conductivity
     porosity = 1
+    block = 'pebble_bed'
   []
 
-  [heating]
+  [solid_energy_diffusion]
+    type = PINSFVEnergyAnisotropicDiffusion
+    variable = T_solid
+    kappa = 'tensor_thermal_conductivity'
+    # effective_diffusivity = false
+    # currently there is bug in the code, uncomment
+    # previous line and remove the following line when
+    # the bug is fixed
+    effective_diffusivity = true
+    porosity = porosity
+    block = 'bottom_reflector side_reflector'
+  []
+
+  [source]
     type = FVBodyForce
     variable = T_solid
     function = heat_source_fn
@@ -184,33 +204,60 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
 
 [Modules]
   [NavierStokesFV]
+    # general control parameters
     compressibility = 'weakly-compressible'
     porous_medium_treatment = true
+    add_energy_equation = true
+    block = 'pebble_bed cavity bottom_reflector'
+
+    # material property parameters  
     density = rho
     dynamic_viscosity = mu
+
+    # porous medium treatment parameters  
     porosity = porosity
     porosity_interface_pressure_treatment = 'bernoulli'
+
+    # initial conditions
     initial_velocity = '0 0 0'
     initial_pressure = 5.4e6
+    initial_temperature = ${T_inlet}
+
+    # inlet boundary conditions
     inlet_boundaries = inlet
     momentum_inlet_types = fixed-velocity
     momentum_inlet_function = '0 -${flow_vel}'
+    energy_inlet_types = fixed-temperature
+    energy_inlet_function = '${T_inlet}'
+
+    # wall boundary conditions
     wall_boundaries = 'bed_left bed_right'
     momentum_wall_types = 'slip slip'
+    energy_wall_types = 'heatflux heatflux'
+    energy_wall_function = '0 0'
+
+    # outlet boundary conditions
     outlet_boundaries = outlet
     momentum_outlet_types = fixed-pressure
     pressure_function = ${outlet_pressure}
+
+    # friction control parameters
     friction_types = 'darcy forchheimer'
     friction_coeffs = 'Darcy_coefficient Forchheimer_coefficient'
-    add_energy_equation = true
-    energy_inlet_types = fixed-temperature
-    energy_inlet_function = '300'
-    energy_wall_types = 'heatflux heatflux'
-    energy_wall_function = '0 0'
+
+    # energy equation parameters
     ambient_convection_blocks = 'pebble_bed bottom_reflector'
     ambient_convection_alpha = 'alpha'
     ambient_temperature = 'T_solid'
-    block = 'pebble_bed cavity bottom_reflector'
+  []
+[]
+
+[UserObjects]
+  [bed_geometry]
+    type = WallDistanceCylindricalBed
+    top = ${top_core}
+    inner_radius = 0.0
+    outer_radius = 1.2
   []
 []
 
@@ -220,15 +267,15 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     fp = fluid_properties_obj
     porosity = porosity
     pressure = pressure
-    T_fluid = ${T_fluid}
+    T_fluid = ${T_inlet}
     speed = speed
-    characteristic_length = ${pebble_diameter}
+    characteristic_length = characteristic_length
   []
 
   [graphite_rho_and_cp]
     type = ADGenericFunctorMaterial
-    prop_names =  'rho_s  cp_s'
-    prop_values = '1780.0 1697'
+    prop_names =  'rho_s  cp_s k_s'
+    prop_values = '1780.0 1697 26'
     block = 'pebble_bed 
              side_reflector
              bottom_reflector'
@@ -239,8 +286,8 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     fp = fluid_properties_obj
     pebble_diameter =  ${pebble_diameter}
     porosity = porosity
-    T_fluid = ${T_fluid}
-    T_solid = ${T_fluid}
+    T_fluid = ${T_inlet}
+    T_solid = ${T_inlet}
     block = pebble_bed
   []
 
@@ -260,41 +307,78 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
                                side_reflector   0'
   []
 
-  [effective_solid_thermal_conductivity_pb]
+  [kappa_s_pebble_bed]
+    type = FunctorPebbleBedKappaSolid
+    T_solid = T_solid
+    porosity = porosity
+    solid_conduction = ZBS
+    emissivity = 0.8
+    infinite_porosity = 0.39
+    Youngs_modulus = 9e+9
+    Poisson_ratio = 0.1360
+    lattice_parameters = interpolation
+    coordination_number = You
+    wall_distance = bed_geometry
+    block = 'pebble_bed'
+    pebble_diameter =  ${pebble_diameter}
+    acceleration = ' 0.00 -9.81 0.00 '
+  []
+
+  [effective_pebble_bed_thermal_conductivity]
     type = ADGenericVectorFunctorMaterial
-    prop_names = 'effective_thermal_conductivity'
-    prop_values = '20 20 20'
+    prop_names = 'tensor_thermal_conductivity'
+    prop_values = 'kappa_s kappa_s kappa_s'
     block = 'pebble_bed'
   []
 
-  [effective_solid_thermal_conductivity]
+  [effective_reflector_thermal_conductivity]
     type = ADGenericVectorFunctorMaterial
-    prop_names = 'effective_thermal_conductivity'
-    prop_values = '20 20 20'
+    prop_names = 'tensor_thermal_conductivity'
+    prop_values = 'k_s k_s k_s'
     block = 'bottom_reflector
              side_reflector'
   []
 
-  [alpha_mat]
+  [pebble_bed_alpha]
+    type = FunctorKTAPebbleBedHTC
+    T_solid = T_solid
+    T_fluid = T_fluid
+    mu = mu
+    porosity = porosity
+    pressure = pressure
+    fp = fluid_properties_obj
+    pebble_diameter =  ${pebble_diameter}
+    block = 'pebble_bed'
+  []
+
+  [reflector_alpha]
     type = ADGenericFunctorMaterial
     prop_names = 'alpha'
     prop_values = '2e4'
-    block = 'pebble_bed bottom_reflector'
+    block = 'bottom_reflector'
+  []
+
+  [characteristic_length]
+    type = PiecewiseByBlockFunctorMaterial
+    prop_name = characteristic_length
+    subdomain_to_prop_value = 'pebble_bed       ${pebble_diameter}
+                               cavity           1
+                               bottom_reflector 1
+                               side_reflector   1'
   []
 []
 
 [Executioner]
   type = Transient
-  end_time = 100
+  end_time = 100000
   [TimeStepper]
     type = IterationAdaptiveDT
     iteration_window = 2
     optimal_iterations = 8
     cutback_factor = 0.8
-    growth_factor = 1.1
-    dt = 1e-3
+    growth_factor = 1.6
+    dt = 5e-3
   []
-  dtmax = 5
   line_search = l2
   solve_type = 'NEWTON'
   petsc_options_iname = '-pc_type -pc_factor_shift_type'
@@ -344,41 +428,7 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     function = 'inlet_pressure - outlet_pressure'
   []
 
-  [integral_density]
-    type = ADElementIntegralFunctorPostprocessor
-    functor = rho
-    outputs = none
-  []
-
-  [average_density]
-    type = ParsedPostprocessor
-    pp_names = 'volume integral_density'
-    function = 'integral_density / volume'
-  []
-
-  [integral_mu]
-    type = ADElementIntegralFunctorPostprocessor
-    functor = mu
-    outputs = none
-  []
-
-  [average_mu]
-    type = ParsedPostprocessor
-    pp_names = 'volume integral_mu'
-    function = 'integral_mu / volume'
-  []
-
-  [area]
-    type = AreaPostprocessor
-    boundary = outlet
-    outputs = none
-  []
-
-  [volume]
-    type = VolumePostprocessor
-  []
-
-  [Enthalpy_inlet]
+  [enthalpy_inlet]
     type = VolumetricFlowRate
     boundary = inlet
     vel_x = superficial_vel_x
@@ -386,9 +436,10 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     rhie_chow_user_object = 'pins_rhie_chow_interpolator'
     advected_quantity = 'rho_cp_temp'
     advected_interp_method = 'upwind'
+    outputs = none
   []
 
-  [Enthalpy_outlet]
+  [enthalpy_outlet]
     type = VolumetricFlowRate
     boundary = outlet
     vel_x = superficial_vel_x
@@ -396,16 +447,33 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     rhie_chow_user_object = 'pins_rhie_chow_interpolator'
     advected_quantity = 'rho_cp_temp'
     advected_interp_method = 'upwind'
+    outputs = none
   []
 
-  [heat_source]
+  [enthalpy_balance]
+    type = ParsedPostprocessor
+    pp_names = 'enthalpy_inlet enthalpy_outlet'
+    function = 'enthalpy_inlet + enthalpy_outlet'
+  []
+
+  [heat_source_integral]
     type = ElementIntegralFunctorPostprocessor
     functor = heat_source_fn
     block = pebble_bed
   []
 
+  [mass_flux_weighted_Tf_out]
+    type = MassFluxWeightedFlowRate
+    vel_x = superficial_vel_x
+    vel_y = superficial_vel_y
+    density = rho
+    rhie_chow_user_object = 'pins_rhie_chow_interpolator'
+    boundary = outlet
+    advected_quantity = T_fluid
+  []
 []
 
 [Outputs]
   exodus = true
+  print_linear_residuals = false
 []
