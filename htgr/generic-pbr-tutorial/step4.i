@@ -73,13 +73,9 @@ offset = 0.56331
   []
 
   [solid_energy_diffusion]
-    type = PINSFVEnergyAnisotropicDiffusion
+    type = FVAnisotropicDiffusion
     variable = T_solid
-    kappa = 'effective_thermal_conductivity'
-    effective_diffusivity = true
-    # porosity is not used because we already provide
-    # an effective thermal conductivity
-    porosity = 1
+    coeff = 'effective_thermal_conductivity'
   []
 
   [source]

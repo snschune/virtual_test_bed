@@ -160,28 +160,10 @@ top_core = 9.7845
     porosity = porosity
   []
 
-  [solid_energy_diffusion_bed]
-    type = PINSFVEnergyAnisotropicDiffusion
-    variable = T_solid
-    kappa = 'tensor_thermal_conductivity'
-    effective_diffusivity = true
-    # porosity is not used because we already provide
-    # an effective thermal conductivity
-    porosity = 1
-    block = 'pebble_bed'
-  []
-
   [solid_energy_diffusion]
-    type = PINSFVEnergyAnisotropicDiffusion
+    type = FVAnisotropicDiffusion
     variable = T_solid
-    kappa = 'tensor_thermal_conductivity'
-    # effective_diffusivity = false
-    # currently there is bug in the code, uncomment
-    # previous line and remove the following line when
-    # the bug is fixed
-    effective_diffusivity = true
-    porosity = porosity
-    block = 'bottom_reflector side_reflector'
+    coeff = 'effective_thermal_conductivity'
   []
 
   [source]
@@ -272,13 +254,25 @@ top_core = 9.7845
     characteristic_length = characteristic_length
   []
 
-  [graphite_rho_and_cp]
+  [graphite_rho_and_cp_bed]
     type = ADGenericFunctorMaterial
     prop_names =  'rho_s  cp_s k_s'
     prop_values = '1780.0 1697 26'
-    block = 'pebble_bed 
-             side_reflector
-             bottom_reflector'
+    block = 'pebble_bed'
+  []
+
+  [graphite_rho_and_cp_side_reflector]
+    type = ADGenericFunctorMaterial
+    prop_names =  'rho_s  cp_s kappa_s'
+    prop_values = '1780.0 1697 ${fparse 1 * 26}'
+    block = 'side_reflector'
+  []
+
+  [graphite_rho_and_cp_bottom_reflector]
+    type = ADGenericFunctorMaterial
+    prop_names =  'rho_s  cp_s kappa_s'
+    prop_values = '1780.0 1697 ${fparse 0.7 * 26}'
+    block = 'bottom_reflector'
   []
 
   [drag_pebble_bed]
@@ -321,21 +315,15 @@ top_core = 9.7845
     wall_distance = bed_geometry
     block = 'pebble_bed'
     pebble_diameter =  ${pebble_diameter}
-    acceleration = ' 0.00 -9.81 0.00 '
+    acceleration = '0.00 -9.81 0.00 '
   []
 
   [effective_pebble_bed_thermal_conductivity]
     type = ADGenericVectorFunctorMaterial
-    prop_names = 'tensor_thermal_conductivity'
+    prop_names = 'effective_thermal_conductivity'
     prop_values = 'kappa_s kappa_s kappa_s'
-    block = 'pebble_bed'
-  []
-
-  [effective_reflector_thermal_conductivity]
-    type = ADGenericVectorFunctorMaterial
-    prop_names = 'tensor_thermal_conductivity'
-    prop_values = 'k_s k_s k_s'
-    block = 'bottom_reflector
+    block = 'pebble_bed
+             bottom_reflector
              side_reflector'
   []
 

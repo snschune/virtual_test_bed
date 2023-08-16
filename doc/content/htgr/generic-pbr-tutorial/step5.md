@@ -51,35 +51,41 @@ we define a variable `top_core` to set it.
 
 ## Materials
 
-The goal of Step 5 is to use realitic material properties and closure relationships.
-To that end, we first define constant base material properties of graphite using an
+The goal of Step 5 is to use realistic material properties and closure relationships.
+
+First, we define a diagonal tensor effective thermal conductivity called `effective_thermal_conductivity`. In the 
+pebble bed, `effective_thermal_conductivity` will contain contributions from conduction through the bed,
+radiation between pebbles, and conduction through the fluid. We will use an empirical correlation in the bed.
+To accomplish that, we need to define base material properties in the bed. This is accomplished by using an
 `ADGenericFunctorMaterial` object:
 
-!listing htgr/generic-pbr-tutorial/step5.i block=graphite_rho_and_cp
+!listing htgr/generic-pbr-tutorial/step5.i block=graphite_rho_and_cp_bed
 
-In particular we set the full density thermal conductivity of graphite to $26$ W/m-K.
+We set the full density thermal conductivity of graphite to $26$ W/m-K.
 
-The effective thermal conductivity in the pebble bed is made up of multiple
-components: heat conduction across pebbles, radiation between pebbles, and conduction
-through the fluid in the pores. Pronghorn provides empirical models that can be
+The effective thermal conductivity in the bed is then computed using empirical models that can be
 selected using the `FunctorPebbleBedKappaSolid` object:
 
 !listing htgr/generic-pbr-tutorial/step5.i block=kappa_s_pebble_bed
 
-This object is based in the base thermal conductivity of graphite (`k_s=26`)
+This object uses the base thermal conductivity of graphite (`k_s=26`)
 and produces a scalar property named `kappa_s`. The options available in
 `FunctorPebbleBedKappaSolid` are detailed in the Pronghorn manual.
 
-We want to define the property `tensor_thermal_conductivity` as a 
-diagonal tensor property everywhere. To that end we use `ADGenericVectorFunctorMaterial` to inject `k_s` and `kappa_s` into `tensor_thermal_conductivity` 
+In the reflector regions, we use `ADGenericFunctorMaterial` and directly modify the thermal
+conductivity by multiplying it by $1 - \epsilon$ where $\epsilon$ is the porosity. Note, that in the
+reflector regions, we directly define the functor `kappa_s`. The two objects defining thermal
+properties in the reflector regions are:
+
+!listing htgr/generic-pbr-tutorial/step5.i start=graphite_rho_and_cp_side_reflector end=drag_pebble_bed
+
+We want to define the property `effective_thermal_conductivity` as a 
+diagonal tensor property everywhere. To that end we use `ADGenericVectorFunctorMaterial` to inject `kappa_s` into `effective_thermal_conductivity`:
 
 !listing htgr/generic-pbr-tutorial/step5.i start=effective_pebble_bed_thermal_conductivity end=pebble_bed_alpha
 
-Note that for the `bottom_reflector` and `side_reflector` regions, `tensor_thermal_conductivity` is not the effective thermal conductivity.
-Therefore, we split the added an additional block restriction when adding the
-solid conduction term and used the 
-
-!listing htgr/generic-pbr-tutorial/step5.i start=solid_energy_diffusion_bed end=source
+Neither `rho_s` nor `cp_s` are modified by $1 - \epsilon$ because that modification is automatically
+performed in the `PINSFVEnergyTimeDerivative`.
 
 The volumetric heat transfer coefficient between pebbles and helium is computed
 using the German Kerntechnischer Ausschuss correlation:

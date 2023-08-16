@@ -20,14 +20,13 @@ convective cooling by the helium. These terms are added using the `FVKernels` bl
 
 `energy_storage` is the time derivative term that uses two material properties, namely the solid
 density `rho` and the solid specific heat `cp`. `solid_energy_diffusion` represents heat conduction
-and uses the thermal conductivity property provided under `kappa`. `source` provides the heat source
+and uses the thermal conductivity property provided to the `coeff` parameter. `source` provides the heat source
 and is discussed later. `convection_pebble_bed_fluid` models convective heat transfer between 
 the solid pebbles and the helium coolant. It uses the volumetric heat transfer coefficient `h_solid_fluid`
 as property.
 
-In `solid_energy_diffusion` the `effective_diffusivity` parameter should be explained in detail. If set to `true`, then 
-`kappa` is interpreted as effective thermal conductivity and used as is. If set to `false`, then the value of `kappa`
-is multiplied with the porosity to take into account reduced thermal conductivity of porous regions.
+In `solid_energy_diffusion` the `coeff` parameter should be provided with an effective
+thermal conductivity that takes into account porosity and heat transfer mechanisms other than conduction. This will be accomplished in Step 5.
 
 For `energy_storage`, the values of density, specific heat, and porosity do not matter for the steady-state solution of this problem because the time derivative term vanishes at steady-state. These properties affect the progression of the pseudo transient and can in principle be chosen to get to the steady-state result in fewer time steps. However, for true transient problems
 the values of porosity, density, and specific heat matter and need to represent physical reality. Their dual use in pseudo-transient and transient scenarios may lead to user error because transient inputs are often created by modifying steady-state/pseudo-transient inputs. Therefore, the `PINSFVEnergyTimeDerivative` provides the `scaling` parameter to adjust the thermal capacity to accelerate the pseudo-transient.
@@ -43,11 +42,12 @@ been shown above and second a postprocessor is used to integrate the heat source
 
 !listing htgr/generic-pbr-tutorial/step4.i block=heat_source_integral
 
-The heat source is blocked resticted to just the pebble bed block due to heat being generate only in that block. The postprocessor named `heat_source_integral`
+The heat source is block restricted to just the pebble bed block due to heat being generate only in that block. The postprocessor named `heat_source_integral`
 should return $2 \times 10^8$.
 
 Properties used by the kernels are provided in the `Materials` block as functors. In addition to the functors defined in Step 3, we add the effective bed conductivity,
 the solid/fluid volumetric heat transfer coefficient, and the density and specific heat in the bed.
+Step 5 will go into a lot more detail about setting up realistic material properties.
 
 We add postprocessors to compute the inlet enthalpy, outlet enthalpy, and enthalpy difference as well as the total heat source.
 
