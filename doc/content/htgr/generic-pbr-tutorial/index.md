@@ -24,7 +24,7 @@ execute all commands in this tutorial except for swapping
 
 [Step 3: Adding a cavity above the bed](generic-pbr-tutorial/step3.md)
 
-[Step 4: Heating](generic-pbr-tutorial/step4.md)
+[Step 4: Adding a solid conduction equation and a heat source in the pebble-bed](generic-pbr-tutorial/step4.md)
 
 [Step 5: Adding Reflectors](generic-pbr-tutorial/step5.md)
 

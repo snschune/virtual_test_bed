@@ -4,7 +4,7 @@ bed_radius = 1.2
 cavity_height = 0.5
 bed_porosity = 0.39
 outlet_pressure = 5.5e6
-density = 8.76
+density = 8.7325
 pebble_diameter = 0.06
 T_inlet = 300
 thermal_mass_scaling = 1
@@ -12,6 +12,12 @@ thermal_mass_scaling = 1
 mass_flow_rate = 60.0
 flow_area = ${fparse pi * bed_radius * bed_radius}
 flow_vel = ${fparse mass_flow_rate / flow_area / density}
+
+# scales the heat source to integrate to 200 MW
+power_fn_scaling = 0.88689239556
+
+# moves the heat source around axially to have the peak in the right spot
+offset = 0.56331
 
 [Mesh]
   [gen]
@@ -42,8 +48,8 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
 [Functions]
   [heat_source_fn]
     type = ParsedFunction
-    expression = '1.7411862 * (-386.03 * pow(y-2.40538, 5) - 921.11 * pow(y-2.40538, 4) + 70874 * pow(y-2.40538, 3) 
-                               -270123 * pow(y-2.40538, 2) + 803073 * (y-2.40538) + 389259)'
+    expression = '${power_fn_scaling} * (-1.0612e4 * pow(y+${offset}, 4) + 1.5963e5 * pow(y+${offset}, 3) 
+                   -6.2993e5 * pow(y+${offset}, 2) + 1.4199e6 * (y+${offset}) + 5.5402e4)'
   []
 []
 
@@ -141,6 +147,22 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     ambient_convection_blocks = 'pebble_bed'
     ambient_convection_alpha = 'alpha'
     ambient_temperature = 'T_solid'
+  []
+[]
+
+[AuxVariables]
+  [source_var]
+    family = MONOMIAL
+    order = CONSTANT
+  []
+[]
+
+[AuxKernels]
+  [source_aux]
+    type = FunctionAux
+    variable = source_var
+    block = pebble_bed
+    function = heat_source_fn
   []
 []
 
