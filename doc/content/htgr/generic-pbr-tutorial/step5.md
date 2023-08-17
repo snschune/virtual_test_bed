@@ -97,13 +97,23 @@ in the Pronghorn manual.
 The heat transfer coefficient in the bottom reflector is (somewhat arbitrarily)
 set to $2 \times 10^4$ W/m$^3$-K.
 
+For the pressure drop in the bottom reflector, we assume that the bottom
+reflector is made up of pipes if diameter $0.1$ m. The pressure drop in these
+pipes is estimated using the Churchill correlation that is available in Pronghorn via the `FunctorChurchillDragCoefficients` object:
+
+!listing htgr/generic-pbr-tutorial/step5.i block=drag_bottom_reflector
+
+The `multipliers` parameter makes the pressure drop in the x-direction much
+larger than in the y-direction modeling a pipe oriented along
+the y-direction.
+
 Some materials based on correlations pick up a characteristic length as parameter `characteristic_length`. The characteristic length is usually different in different
 parts of the model so it is good practice to set it using `PiecewiseByBlockFunctorMaterial`. 
 
 !listing htgr/generic-pbr-tutorial/step5.i block=characteristic_length
 
-Currently, we only set the characteristic length to realistic values in the pebble
-bed because that is where we use empirical correlations.
+Currently, we only set the characteristic length in the pebble
+bed and bottom reflector because that is where we use empirical correlations.
 
 ## Postprocessors
 

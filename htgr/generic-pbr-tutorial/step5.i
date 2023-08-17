@@ -19,6 +19,9 @@ offset = -0.29119
 # the y-coordinate of the top of the core
 top_core = 9.7845
 
+# hydraulic diameters (excluding bed where it's pebble diameter)
+bottom_reflector_Dh = 0.1
+
 [Mesh]
   block_id = '1 2 3 4'
   block_name = 'pebble_bed
@@ -144,7 +147,7 @@ top_core = 9.7845
 [Variables]
   [T_solid]
     type = INSFVEnergyVariable
-    initial_condition = 300
+    initial_condition = ${T_inlet}
     block = 'pebble_bed bottom_reflector side_reflector'
   []
 []
@@ -289,7 +292,13 @@ top_core = 9.7845
     type = ADGenericVectorFunctorMaterial
     prop_names = 'Darcy_coefficient Forchheimer_coefficient'
     prop_values = '0 0 0 0 0 0'
-    block = 'cavity bottom_reflector'
+    block = 'cavity'
+  []
+
+  [drag_bottom_reflector]
+    type = FunctorChurchillDragCoefficients
+    multipliers = '1e4 1 1e4'
+    block = 'bottom_reflector'
   []
 
   [porosity_material]
@@ -350,9 +359,7 @@ top_core = 9.7845
     type = PiecewiseByBlockFunctorMaterial
     prop_name = characteristic_length
     subdomain_to_prop_value = 'pebble_bed       ${pebble_diameter}
-                               cavity           1
-                               bottom_reflector 1
-                               side_reflector   1'
+                               bottom_reflector ${bottom_reflector_Dh}'
   []
 []
 
