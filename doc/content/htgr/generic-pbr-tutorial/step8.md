@@ -1,12 +1,61 @@
 ## Step 8
 
-The final step is adding the outer parts of the reactor. This would include carbon bricks, He gaps, core barrel and the reactor pressure vessel (rpv). Each again has their own respected number representative. There are 2 different He gaps, one between the carbon bricks and the core barrel and the other being between the core barrel and the rpv. 
+The final step is to add the outer structure of the reactor. The outer structure includes carbon bricks, helium gaps, the core barrel, and the reactor pressure vessel (RPV). There are 2 different helium gaps, one between the carbon bricks and the core barrel and the other between the core barrel and the RPV.
 
-Carbon Bricks are similiar to that of reflectors, but are replacable. The 2 He gaps were made to insulate heat within the reactor. There's no flow in these gaps, assume the gaps are solid. The core barrel and the reactor pressure vessel (rpv) is structural steel. Both are made up of 2 different steels. 
+## Geometry
 
-## Inputs
+The geometry is changed by modifying the `cartesian_mesh` block. The geometry is depicted in [step8mesh].
 
-The new blocks are placed into their respected inputs that were already made from previous steps. The only new inputs that are made in this step are under `Material`. The properties for the 2 different steels and the helium gaps inputs were too be made.
+!media generic-pbr-tutorial/MeshP8.png
+        style=width:100%
+        id=step8mesh
+        caption=Geometry for Step 8.
+
+Note that only solid conduction blocks are added in Step 8 so that the `NavierStokesFV` remains
+unchanged.
+
+## Adding Boundary Conditions for T_solid
+
+At the radial outside boundary of the RPV, a Dirichlet boundary condition of $300$ K is applied:
+
+!listing htgr/generic-pbr-tutorial/step8.i block=FVBCs
+
+By adding the boundary condition on the outer surface of the RPV, some of the
+heat deposited in the pebble-bed is conducted to the RPV.
+In a more realistic model, a convective and radiative boundary condition should be
+applied.
+
+## Materials
+
+The `carbon_bricks` block is modeled as the same graphite as the `side_reflector`:
+
+!listing htgr/generic-pbr-tutorial/step8.i block=graphite_rho_and_cp_carbon_bricks
+
+The barrel and RPV are different steels, differing in specific heat and thermal conductivity:
+
+!listing htgr/generic-pbr-tutorial/step8.i start=barrel_rho_cp_kappa end=gap_rho_and_cp
+
+Only the `carbon_bricks`, `core_barrel`, and `rpv` blocks are added to the  `effective_thermal_conductivity` object:
+
+!listing htgr/generic-pbr-tutorial/step8.i block=effective_thermal_conductivity_material
+
+The properties of the gaps is taken care of differently. The gaps are in principle not
+a solid but a stagnant gas. However, we treat it like a solid with small density and
+effective thermal conductivity that takes into account conduction and radiation. To this end
+`cp_s` and `rho_s` are defined as usual:
+
+!listing htgr/generic-pbr-tutorial/step8.i block=gap_rho_and_cp
+
+The effective thermal conductivities are defined using `FunctorGapHeatTransferEffectiveThermalConductivity` objects:
+
+!listing htgr/generic-pbr-tutorial/step8.i start=effective_thermal_conductivity_barrel_gap end=pebble_bed_alpha
+
+In this object:
+
+- `gap_direction` coordinate direction pointing through the gap (i.e., connecting the two faces delimiting the gap),
+- `gap_conductivity_function` is the molecular thermal conductivity of the gas in the gap as a function of temperature,
+- `radius_primary` signals that the geometry that is considered is cylindrical. It is the inner radius of the cylindrical gap. `radius_secondary` must be provided now,
+- `radius_secondary` is the outer radius of the cylindrical gap.
 
 ## Executable
 
@@ -15,27 +64,9 @@ The new blocks are placed into their respected inputs that were already made fro
 
 ## Result
 
-!media generic-pbr-tutorial/MeshP8.png
-        style=width:30%
-        id=step8mesh
-        caption= Mesh for Step 8.
-
-!media generic-pbr-tutorial/T_fluidP8.png
-        style=width:30%
-        id=step8T_fluid
-        caption= Tempurature of the fluid for Step 8.
+The solid temperature is shown in [step8_Tsolid].
 
 !media generic-pbr-tutorial/T_solidP8.png
-        style=width:30%
-        id=step8T_solid
-        caption= Tempurature of the solid for Step 8.
-        
-!media generic-pbr-tutorial/PressureP8.png
-        style=width:30%
-        id=step8Pressure
-        caption= Pressure of the system for Step 8.
-
-!media generic-pbr-tutorial/VelocityP8.png
-        style=width:30%
-        id=step8Velocity
-        caption= Velocity of the system for Step 8.
+        style=width:100%
+        id=step8_Tsolid
+        caption=Solid temperature for Step 8.

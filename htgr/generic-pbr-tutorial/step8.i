@@ -1,17 +1,35 @@
 # Authored: Joseph R. Brennan, Mentor: Mustafa K. Jaradat, Sebastian Schunert, and Paolo Balestra
-bed_radius = 1.2
-outlet_pressure = 5.5e6
-T_fluid = 300
-density = 8.62
+outlet_pressure = 5.84e+6
+T_inlet = 533.25
+inlet_density = 5.32625
 pebble_diameter = 0.06
+thermal_mass_scaling = 0.01
 
-mass_flow_rate = ${fparse 60 / 3.385017e+01 * 60}
-flow_area = ${fparse pi * bed_radius * bed_radius}
-flow_vel = ${fparse mass_flow_rate / flow_area / density}
-            
+mass_flow_rate = 64.3
+riser_inner_radius = 1.701
+riser_outer_radius = 1.871
+flow_area = '${fparse pi * (riser_outer_radius * riser_outer_radius - riser_inner_radius * riser_inner_radius)}'
+flow_vel = '${fparse mass_flow_rate / flow_area / inlet_density}'
+
+# scales the heat source to integrate to 200 MW
+power_fn_scaling = 0.9792628
+
+# drag coefficient in open flow spaces, set to allow convergence
+c_drag = 10
+
+# moves the heat source around axially to have the peak in the right spot
+offset = -2.25819
+
+# the y-coordinate of the top of the core
+top_core = 11.7515
+
+# hydraulic diameters (excluding bed where it's pebble diameter)
+bottom_reflector_Dh = 0.1
+riser_Dh = 0.17
+control_rod_Dh = 0.1
+
 [Mesh]
   type = MeshGeneratorMesh
-  # Mesh id's/number paired witha block to represent in creating the mesh
   block_id = '1 2 3 4 5 6 7 8 9 10 11 12 13'
   block_name = 'pebble_bed
                 cavity
@@ -26,85 +44,82 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
                 core_barrel
                 barrel_rpv_gap
                 rpv'
-  uniform_refine = 1
- 
- [cartesian_mesh]
-  type = CartesianMeshGenerator
-  dim = 2 # 2D mesh
 
-  # length of each row and column to make a grid
-  dx = ' 0.20 0.20 0.20 0.20 0.20 0.20       
-         0.010 0.055
-         0.13
-         0.102 0.102 0.102
-         0.17
-         0.120
-         0.010 0.240 0.150 0.040 0.160 0.150 '
+  [cartesian_mesh]
+    type = CartesianMeshGenerator
+    dim = 2
 
-  ix = ' 1 1 1 1 1 1
-         1 1
-         1
-         1 1 1
-         2
-         1
-         1 1 1 1 1 1
-         '
+    # length of each row and column to make a grid
+    dx = '0.20 0.20 0.20 0.20 0.20 0.20
+          0.010 0.055
+          0.13
+          0.102 0.102 0.102
+          0.17
+          0.120
+          0.010 0.240 0.150 0.040 0.160 0.150 '
 
-  dy = ' 0.400 0.400
-         0.100 0.100
-         0.967
-         0.1709 0.1709 0.1709 0.1709 0.1709
-         0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465
-         0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465
-         0.458 0.712
-         0.300'
+    ix = '1 1 1 1 1 1
+          1 1
+          1
+          1 1 1
+          2
+          1
+          1 1 1 1 1 1
+          '
 
-  iy = ' 1 1
-         1 2
-         2
-         2 2 1 1 1
-         4 1 1 1 1 1 1 1 1 1
-         1 1 1 1 1 1 1 1 1 4
-         4 2
-         2'
+    dy = '0.400 0.400
+          0.100 0.100
+          0.967
+          0.1709 0.1709 0.1709 0.1709 0.1709
+          0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465
+          0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465 0.4465
+          0.458 0.712
+          0.300'
 
-  # The build of the reactor using the representing numbers of the different blocks
-  subdomain_id =  '9 9 9 9 9 9  9 9  9  9 9 9  9  9 9 9 10 11 12 13
-                   9 9 9 9 9 9  9 9  9  9 9 9  9  9 9 9 10 11 12 13
-                   4 4 4 4 4 4  4 4  4  4 4 4  4  4 9 9 10 11 12 13
-                   4 4 4 4 4 4  4 4  4  4 4 4  4  4 9 9 10 11 12 13
-                   6 6 6 6 6 6  6 6  6  4 4 4  7  4 9 9 10 11 12 13
-                   3 3 3 3 3 3  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   3 3 3 3 3 3  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   3 3 3 3 3 3  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   3 3 3 3 3 3  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   3 3 3 3 3 3  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   1 1 1 1 1 1  4 4  8  4 4 4  7  4 9 9 10 11 12 13
-                   2 2 2 2 2 2  5 5  5  5 5 5  7  4 9 9 10 11 12 13
-                   4 4 4 4 4 4  4 4  4  4 4 4  4  4 9 9 10 11 12 13
-                   9 9 9 9 9 9  9 9  9  9 9 9  9  9 9 9 10 11 12 13'
+    iy = '1 1
+          1 2
+          2
+          2 2 1 1 1
+          4 1 1 1 1 1 1 1 1 1
+          1 1 1 1 1 1 1 1 1 4
+          4 2
+          2'
+
+    subdomain_id = '9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 10 11 12 13
+                    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 10 11 12 13
+                    4 4 4 4 4 4 4 4 4 4 4 4 4 4 9 9 10 11 12 13
+                    4 4 4 4 4 4 4 4 4 4 4 4 4 4 9 9 10 11 12 13
+                    6 6 6 6 6 6 6 6 6 4 4 4 7 4 9 9 10 11 12 13
+                    3 3 3 3 3 3 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    3 3 3 3 3 3 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    3 3 3 3 3 3 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    3 3 3 3 3 3 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    3 3 3 3 3 3 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    1 1 1 1 1 1 4 4 8 4 4 4 7 4 9 9 10 11 12 13
+                    2 2 2 2 2 2 5 5 5 5 5 5 7 4 9 9 10 11 12 13
+                    4 4 4 4 4 4 4 4 4 4 4 4 4 4 9 9 10 11 12 13
+                    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 10 11 12 13'
   []
 
- # Creating Boundaries
   [inlet]
     type = SideSetsAroundSubdomainGenerator
     input = cartesian_mesh
@@ -153,7 +168,7 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     included_subdomains = 5
     included_neighbors = 4
     new_sideset_name = upper_plenum_bottom
-  [] 
+  []
 
   [cavity_top]
     type = SideSetsAroundSubdomainGenerator
@@ -220,12 +235,12 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
   []
 
   [bottom_plenum_top]
-   type = ParsedGenerateSideset
-   input = bottom_plenum_bottom
-   combinatorial_geometry = 'abs(y-1.967) < 1e-3'
-   included_subdomains = 6
-   included_neighbors = 4
-   new_sideset_name = bottom_plenum_top
+    type = ParsedGenerateSideset
+    input = bottom_plenum_bottom
+    combinatorial_geometry = 'abs(y-1.967) < 1e-3'
+    included_subdomains = 6
+    included_neighbors = 4
+    new_sideset_name = bottom_plenum_top
   []
 
   [control_rod_right]
@@ -248,7 +263,7 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     type = SideSetsBetweenSubdomainsGenerator
     input = control_rod_left
     new_boundary = control_rod_outlet
-    primary_block = 8 
+    primary_block = 8
     paired_block = 6
   []
 
@@ -260,45 +275,49 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     normal = '1 0 0'
   []
 
- # Renaming Boundaries
-  [rename_boundaries]
-    type = RenameBoundaryGenerator
+  [cr_top]
+    type = ParsedGenerateSideset
+    combinatorial_geometry = 'abs(y - 11.7515) < 1e-3'
+    included_subdomains = '5'
+    included_neighbors = '4'
+    new_sideset_name = cr_top
     input = outlet
-    old_boundary = 'riser_right riser_top upper_plenum_top cavity_top cavity_left bed_left bottom_reflector_left bottom_plenum_left bottom_plenum_bottom riser_left bed_right bottom_reflector_right bottom_plenum_top control_rod_left control_rod_right'
-    new_boundary = 'in in in in ex ex ex ex in in in in in in in'
   []
 
- coord_type = RZ
+  [rename_boundaries]
+    type = RenameBoundaryGenerator
+    input = cr_top
+    old_boundary = 'right cr_top riser_right riser_top upper_plenum_top cavity_top cavity_left bed_left bottom_reflector_left bottom_plenum_left bottom_plenum_bottom riser_left bed_right bottom_reflector_right bottom_plenum_top control_rod_left control_rod_right'
+    new_boundary = 'radial_outer in in in in in ex ex ex ex in in in in in in in'
+  []
 
+  [remove_boundaries]
+    type = BoundaryDeletionGenerator
+    input = rename_boundaries
+    boundary_names = 'left'
+  []
+
+  coord_type = RZ
 []
 
 [FluidProperties]
-# Fluid of the system
   [fluid_properties_obj]
     type = HeliumFluidProperties
   []
 []
 
 [Functions]
-  # created a heat equation based of the y axis 
   [heat_source_fn]
     type = ParsedFunction
-    expression = '(1.001150322)*(-386.03*(y-2.40538)^5 - 921.11*(y-2.40538)^4 + 70874*(y-2.40538)^3 - 270123*(y-2.40538)^2 + 803073*(y-2.40538) + 389259)'
-  []
-
-# Created a constant velocity
-  [flow_vel_fn]
-    type = PiecewiseLinear
-    x = '0'
-    y = '${flow_vel}'
+    expression = '${power_fn_scaling} * (-1.0612e4 * pow(y+${offset}, 4) + 1.5963e5 * pow(y+${offset}, 3)
+                   -6.2993e5 * pow(y+${offset}, 2) + 1.4199e6 * (y+${offset}) + 5.5402e4)'
   []
 []
 
 [Variables]
-  # All blocks with solid with a initial temperature
   [T_solid]
     type = INSFVEnergyVariable
-    initial_condition = 300
+    initial_condition = ${T_inlet}
     block = 'pebble_bed
              bottom_reflector
              side_reflector
@@ -312,162 +331,32 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
              barrel_rpv_gap
              rpv'
   []
-  # All blocks with flow to develop tempurature in the system
-  [T_fluid]
-    type = INSFVEnergyVariable
-    block = 'pebble_bed 
-             cavity 
-             bottom_reflector 
-             upper_plenum 
-             bottom_plenum 
-             riser 
-             control_rods'
-  []
-   
-  [superficial_vel_x]
-    type = PINSFVSuperficialVelocityVariable
-    block = 'pebble_bed 
-             cavity 
-             bottom_reflector 
-             upper_plenum 
-             bottom_plenum 
-             riser 
-             control_rods'
-  []
-
-  [superficial_vel_y]
-    type = PINSFVSuperficialVelocityVariable
-    block = 'pebble_bed 
-             cavity 
-             bottom_reflector 
-             upper_plenum 
-             bottom_plenum 
-             riser 
-             control_rods'
-  []
-[]
-
-[AuxVariables]
-  [power_density]
-    type = MooseVariableFVReal
-    #initial_condition = 0
-    block = 'pebble_bed'
-  [] 
-[]
-
-[ICs]
-
-  [T_solid_ic_1]
-    type = ConstantIC
-    variable = T_fluid
-    value = 300
-    block = 'pebble_bed'
-  []
-
-  [T_solid_ic_2]
-    type = ConstantIC
-    variable = T_fluid
-    value = 300.000001
-    block = 'cavity 
-             bottom_reflector 
-             upper_plenum 
-             bottom_plenum 
-             riser 
-             control_rods'
-  []
-
-  [power_density]
-    type = FunctionIC
-    variable = power_density
-    function = '(1.001150322)*(-386.03*(y-2.40538)^5 - 921.11*(y-2.40538)^4 + 70874*(y-2.40538)^3 - 270123*(y-2.40538)^2 + 803073*(y-2.40538) + 389259)'
-    block = 'pebble_bed'
-  []
-
- # Initial condtions of the system to help develop flow
-  [ic_vel_y_pb]
-    type = ConstantIC
-    variable = superficial_vel_y
-    value = '-1.08191'
-    block = 'pebble_bed'
-  []
-
-  [ic_vel_y_cr]
-    type = ConstantIC
-    variable = superficial_vel_y
-    value = '-0.297307'
-    block = 'control_rods'
-  []
-
-  [ic_vel_y_ca]
-    type = ConstantIC
-    variable = superficial_vel_y
-    value = '-0.806784'
-    block = 'cavity'
-  []
-
-  [ic_vel_y_rs]
-    type = ConstantIC
-    variable = superficial_vel_y
-    value = '2.73133'
-    block = 'riser'
-  []
-
-  [ic_vel_y_br]
-    type = ConstantIC
-    variable = superficial_vel_y
-    value = '-1.00524'
-    block = 'bottom_reflector'
-  []
-
-  [ic_vel_y_bp]
-    type = ConstantIC
-    variable = superficial_vel_y
-    value = '-0.300878'
-    block = 'bottom_plenum'
-  []
-
-  [ic_vel_x_bp]
-    type = ConstantIC
-    variable = superficial_vel_x
-    value = '0.412277'
-    block = 'bottom_plenum'
-  []
-
-  [ic_vel_x_up]
-    type = ConstantIC
-    variable = superficial_vel_x
-    value = '-0.94893'
-    block = 'upper_plenum'
-  []
 []
 
 [FVKernels]
-  # energy storage of the solid
   [energy_storage]
     type = PINSFVEnergyTimeDerivative
     variable = T_solid
-    rho = 2000
-    cp = 300
+    rho = rho_s
+    cp = cp_s
     is_solid = true
-    scaling = 1e-3
-    porosity = 0
+    scaling = ${thermal_mass_scaling}
+    porosity = porosity
   []
-  # diffusivity of the solid
+
   [solid_energy_diffusion_core]
-    type = PINSFVEnergyAnisotropicDiffusion
+    type = FVAnisotropicDiffusion
     variable = T_solid
-    kappa = 'effective_thermal_conductivity'
-    effective_diffusivity = true
-    porosity = 1
+    coeff = 'effective_thermal_conductivity'
   []
-  # Applies the heat equation into the pebble bed block
+
   [heating]
     type = FVBodyForce
     variable = T_solid
     function = heat_source_fn
     block = 'pebble_bed'
   []
-  # convection between solid and fluid
+
   [convection_pebble_bed_fluid]
     type = PINSFVEnergyAmbientConvection
     variable = T_solid
@@ -475,130 +364,211 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     T_solid = T_solid
     is_solid = true
     h_solid_fluid = 'alpha'
-    block = 'pebble_bed bottom_reflector upper_plenum bottom_plenum riser control_rods'
+    block = 'pebble_bed bottom_reflector'
   []
 []
 
+[FVBCs]
+  [radial_outside_rpv]
+    type = FVDirichletBC
+    variable = T_solid
+    boundary = radial_outer
+    value = 300
+  []
+[]
 
 [Modules]
   [NavierStokesFV]
+    # external variable definition
+
+    # general control parameters
     compressibility = 'weakly-compressible'
     porous_medium_treatment = true
+    add_energy_equation = true
+    block = 'pebble_bed cavity bottom_reflector upper_plenum bottom_plenum riser control_rods'
+
+    # material property parameters
     density = rho
     dynamic_viscosity = mu
+
+    # porous medium treatment parameters
     porosity = porosity
     porosity_interface_pressure_treatment = 'bernoulli'
-    initial_pressure = 5.5e6
+
+    # initial conditions
+    initial_velocity = '0 0 0'
+    initial_pressure =${outlet_pressure}
+    initial_temperature = ${T_inlet}
+
+    # inlet boundary conditions
     inlet_boundaries = inlet
     momentum_inlet_types = fixed-velocity
-    momentum_inlet_function = '0 flow_vel_fn'
+    momentum_inlet_function = '0 ${flow_vel}'
+    energy_inlet_types = fixed-temperature
+    energy_inlet_function = '${T_inlet}'
+
+    # wall boundary conditions
     wall_boundaries = 'ex in'
     momentum_wall_types = 'slip slip'
+    energy_wall_types = 'heatflux heatflux'
+    energy_wall_function = '0 0'
+
+    # outlet boundary conditions
     outlet_boundaries = outlet
     momentum_outlet_types = fixed-pressure
     pressure_function = ${outlet_pressure}
+
+    # friction control parameters
     friction_types = 'darcy forchheimer'
     friction_coeffs = 'Darcy_coefficient Forchheimer_coefficient'
-    add_energy_equation = true
-    energy_inlet_types = fixed-temperature
-    energy_inlet_function = '300'
-    energy_wall_types = 'heatflux heatflux'
-    energy_wall_function = '0 0'
-    ambient_convection_blocks = 'pebble_bed bottom_reflector upper_plenum bottom_plenum riser control_rods'
+
+    # energy equation parameters
+    ambient_convection_blocks = 'pebble_bed bottom_reflector'
     ambient_convection_alpha = 'alpha'
     ambient_temperature = 'T_solid'
-    block = 'pebble_bed cavity bottom_reflector upper_plenum bottom_plenum riser control_rods'
-    fluid_temperature_variable = 'T_fluid'
-    velocity_variable = 'superficial_vel_x superficial_vel_y'
+  []
+[]
+
+[UserObjects]
+  [bed_geometry]
+    type = WallDistanceCylindricalBed
+    top = ${top_core}
+    inner_radius = 0.0
+    outer_radius = 1.2
   []
 []
 
 [Materials]
-  # Fluid properties of the system
   [fluid_props_to_mat_props]
     type = GeneralFunctorFluidProps
     fp = fluid_properties_obj
     porosity = porosity
     pressure = pressure
-    T_fluid = ${T_fluid}
+    T_fluid = T_fluid
     speed = speed
-    characteristic_length = ${pebble_diameter}
-    block = 'pebble_bed
-             bottom_reflector
-             cavity
-             upper_plenum
-             bottom_plenum
-             riser
-             control_rods'
+    characteristic_length = characteristic_length
+    block = 'pebble_bed cavity bottom_reflector upper_plenum bottom_plenum riser control_rods'
   []
-  # Material properties of graphite in the blocks below
-  [graphite_rho_and_cp]
+
+  [graphite_rho_and_cp_bed]
     type = ADGenericFunctorMaterial
-    prop_names =  'rho_s  cp_s k_s'
+    prop_names = 'rho_s  cp_s k_s'
     prop_values = '1780.0 1697 26'
-    block = 'pebble_bed 
-             side_reflector
-             bottom_reflector
-             upper_plenum
-             bottom_plenum
-             riser
-             control_rods
-             carbon_bricks'
+    block = 'pebble_bed'
   []
-  # Material properties of the He in the gaps
-  [He_rho_and_cp]
+
+  [graphite_rho_and_cp_side_reflector]
     type = ADGenericFunctorMaterial
-    prop_names =  'rho_s  cp_s'
-    prop_values = '6      5000'
-    block = 'refl_barrel_gap 
-             barrel_rpv_gap'
+    prop_names = 'rho_s  cp_s kappa_s'
+    prop_values = '1780.0 1697 ${fparse 1 * 26}'
+    block = 'side_reflector'
   []
-  # Material properties of core barrel steel
-  [core_barrel_steel]
+
+  [graphite_rho_and_cp_bottom_reflector]
     type = ADGenericFunctorMaterial
-    prop_names = 'rho_s   cp_s k_s'
-    prop_values = '7800.0 540  17.0'
+    prop_names = 'rho_s  cp_s kappa_s'
+    prop_values = '1780.0 1697 ${fparse 0.7 * 26}'
+    block = 'bottom_reflector'
+  []
+
+  [graphite_rho_and_cp_riser_control_rods]
+    type = ADGenericFunctorMaterial
+    prop_names = 'rho_s  cp_s kappa_s'
+    prop_values = '1780.0 1697 ${fparse 0.68 * 26}'
+    block = 'riser control_rods'
+  []
+
+  [graphite_rho_and_cp_plenums]
+    type = ADGenericFunctorMaterial
+    prop_names = 'rho_s  cp_s kappa_s'
+    prop_values = '1780.0 1697 ${fparse 0.8 * 26}'
+    block = 'upper_plenum bottom_plenum'
+  []
+
+  [graphite_rho_and_cp_carbon_bricks]
+    type = ADGenericFunctorMaterial
+    prop_names = 'rho_s  cp_s kappa_s'
+    prop_values = '1780.0 1697 ${fparse 1 * 26}'
+    block = 'carbon_bricks'
+  []
+
+  [barrel_rho_cp_kappa]
+    type = ADGenericFunctorMaterial
+    prop_names = 'rho_s  cp_s kappa_s'
+    prop_values = '7800.0 540.0 17.0'
     block = 'core_barrel'
   []
-  # Material properties of rpv steel
-  [rpv_steel]
+
+  [rpv_rho_cp_kappa]
     type = ADGenericFunctorMaterial
-    prop_names =  'rho_s  cp_s  k_s'
+    prop_names = 'rho_s  cp_s kappa_s'
     prop_values = '7800.0 525.0 38.0'
     block = 'rpv'
   []
-  # Drag through the pebble bed
+
+  [gap_rho_and_cp]
+    type = ADGenericFunctorMaterial
+    prop_names = 'rho_s  cp_s'
+    prop_values = '5     5200'
+    block = 'refl_barrel_gap barrel_rpv_gap'
+  []
+
   [drag_pebble_bed]
     type = FunctorKTADragCoefficients
     fp = fluid_properties_obj
-    pebble_diameter =  ${pebble_diameter}
+    pebble_diameter = ${pebble_diameter}
     porosity = porosity
-    T_fluid = ${T_fluid}
-    T_solid = ${T_fluid}
-    block = 'pebble_bed'
+    T_fluid = ${T_inlet}
+    T_solid = ${T_inlet}
+    block = pebble_bed
   []
-  # Drag through the cavity
+
   [drag_cavity]
     type = ADGenericVectorFunctorMaterial
     prop_names = 'Darcy_coefficient Forchheimer_coefficient'
-    prop_values = '0 0 0 0 0 0'
+    prop_values = '${c_drag} ${c_drag} ${c_drag} 0 0 0'
     block = 'cavity'
   []
-  # Drag through the reflecter/plenum and riser
-  [drag_reflector_riser]
+
+  [drag_upper_plenum]
     type = ADGenericVectorFunctorMaterial
     prop_names = 'Darcy_coefficient Forchheimer_coefficient'
-    prop_values = '5 5 5 0 0 0'
-    block = 'side_reflector bottom_reflector bottom_plenum upper_plenum riser'
+    prop_values = '${c_drag} ${c_drag} ${c_drag} 0 0 0'
+    block = 'upper_plenum'
   []
-  # Drag through the control rod bypass
-  [drag_control_rods]
+
+  [drag_bottom_plenum]
     type = ADGenericVectorFunctorMaterial
     prop_names = 'Darcy_coefficient Forchheimer_coefficient'
-    prop_values = '69 69 69 0 0 0'
+    prop_values = '${c_drag} ${c_drag} ${c_drag} 0 0 0'
+    block = 'bottom_plenum'
+  []
+
+  [drag_bottom_reflector_riser]
+    type = FunctorChurchillDragCoefficients
+    block = 'bottom_reflector riser'
+    multipliers = '1e4 1 1e4'
+  []
+
+  [Darcy_control_rods]
+    type = ADGenericVectorFunctorMaterial
+    prop_names = 'Darcy_coefficient'
+    prop_values = '0 0 0'
     block = 'control_rods'
   []
-  # Porosity for all blocks
+
+  [Forchheimer_control_rods]
+    type = LinearFrictionFactorFunctorMaterial
+    porosity = porosity
+    functor_name = Forchheimer_coefficient
+    superficial_vel_x = superficial_vel_x
+    superficial_vel_y = superficial_vel_y
+    f = 0
+    g = '1000'
+    B = '1 1 1'
+    block = 'control_rods'
+  []
+
   [porosity_material]
     type = ADPiecewiseByBlockFunctorMaterial
     prop_name = porosity
@@ -611,52 +581,97 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
                                bottom_plenum    0.2
                                control_rods     0.32
                                carbon_bricks    0
-                               refl_barrel_gap  0
                                core_barrel      0
-                               barrel_rpv_gap   0
-                               rpv              0'
+                               rpv              0
+                               refl_barrel_gap  0
+                               barrel_rpv_gap   0'
   []
-  # Thermal conductivity of the pebble bed
-  [effective_solid_thermal_conductivity_pb]
-    type = ADGenericVectorFunctorMaterial
-    prop_names = 'effective_thermal_conductivity'
-    prop_values = '20 20 20'
+
+  [kappa_s_pebble_bed]
+    type = FunctorPebbleBedKappaSolid
+    T_solid = T_solid
+    porosity = porosity
+    solid_conduction = ZBS
+    emissivity = 0.8
+    infinite_porosity = 0.39
+    Youngs_modulus = 9e+9
+    Poisson_ratio = 0.1360
+    lattice_parameters = interpolation
+    coordination_number = You
+    wall_distance = bed_geometry
     block = 'pebble_bed'
+    pebble_diameter = ${pebble_diameter}
+    acceleration = '0.00 -9.81 0.00 '
   []
-  # All blocks with solid conductivity
-  [effective_solid_thermal_conductivity]
+
+  [effective_thermal_conductivity_material]
     type = ADGenericVectorFunctorMaterial
     prop_names = 'effective_thermal_conductivity'
-    prop_values = '20 20 20'
-    block = 'bottom_reflector
+    prop_values = 'kappa_s kappa_s kappa_s'
+    block = 'pebble_bed
+             bottom_reflector
              side_reflector
+             riser
              upper_plenum
              bottom_plenum
-             riser
              control_rods
              carbon_bricks
              core_barrel
              rpv'
   []
-  # All blocks with He gap conductivity
-  [effective_gap_thermal_conductivity]
-    type = ADGenericVectorFunctorMaterial
-    prop_names = 'effective_thermal_conductivity'
-    prop_values = '20 20 20'
-    block = 'refl_barrel_gap
-             barrel_rpv_gap'
+
+  [effective_thermal_conductivity_barrel_gap]
+    type = FunctorGapHeatTransferEffectiveThermalConductivity
+    gap_direction = x
+    temperature = T_solid
+    gap_conductivity_function = 0.2
+    emissivity_primary = 0.8
+    emissivity_secondary = 0.8
+    radius_primary = 2.241
+    radius_secondary = 2.391
+    prop_name = effective_thermal_conductivity
+    block = 'refl_barrel_gap'
   []
-  # All blocks with flow
-  [alpha_mat]
+
+  [effective_thermal_conductivity_rpv_gap]
+    type = FunctorGapHeatTransferEffectiveThermalConductivity
+    gap_direction = x
+    temperature = T_solid
+    gap_conductivity_function = 0.2
+    emissivity_primary = 0.8
+    emissivity_secondary = 0.8
+    radius_primary = 2.431
+    radius_secondary = 2.591
+    prop_name = effective_thermal_conductivity
+    block = 'barrel_rpv_gap'
+  []
+
+  [pebble_bed_alpha]
+    type = FunctorKTAPebbleBedHTC
+    T_solid = T_solid
+    T_fluid = T_fluid
+    mu = mu
+    porosity = porosity
+    pressure = pressure
+    fp = fluid_properties_obj
+    pebble_diameter = ${pebble_diameter}
+    block = 'pebble_bed'
+  []
+
+  [reflector_alpha]
     type = ADGenericFunctorMaterial
     prop_names = 'alpha'
     prop_values = '2e4'
-    block = 'pebble_bed
-             bottom_reflector 
-             upper_plenum 
-             riser 
-             control_rods 
-             bottom_plenum'
+    block = 'bottom_reflector'
+  []
+
+  [characteristic_length]
+    type = PiecewiseByBlockFunctorMaterial
+    prop_name = characteristic_length
+    subdomain_to_prop_value = 'pebble_bed       ${pebble_diameter}
+                               bottom_reflector ${bottom_reflector_Dh}
+                               riser            ${riser_Dh}
+                               control_rods     ${control_rod_Dh}'
   []
 []
 
@@ -667,10 +682,9 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     iteration_window = 2
     optimal_iterations = 8
     cutback_factor = 0.8
-    growth_factor = 1.1
-    dt = 1e-3
+    growth_factor = 1.2
+    dt = 0.01
   []
-  dtmax = 500
   line_search = l2
   solve_type = 'NEWTON'
   petsc_options_iname = '-pc_type -pc_factor_shift_type'
@@ -681,16 +695,17 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
   automatic_scaling = true
   steady_state_detection = true
   steady_state_tolerance = 1e-10
+  steady_state_start_time = 1000
 []
 
 [Postprocessors]
   [inlet_mfr]
-   type = VolumetricFlowRate
-   advected_quantity = rho
-   vel_x = 'superficial_vel_x'
-   vel_y = 'superficial_vel_y'
-   boundary = 'inlet'
-   rhie_chow_user_object = pins_rhie_chow_interpolator
+    type = VolumetricFlowRate
+    advected_quantity = rho
+    vel_x = 'superficial_vel_x'
+    vel_y = 'superficial_vel_y'
+    boundary = 'inlet'
+    rhie_chow_user_object = pins_rhie_chow_interpolator
   []
 
   [outlet_mfr]
@@ -702,13 +717,20 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     rhie_chow_user_object = pins_rhie_chow_interpolator
   []
 
-  [cr_outlet_mfr]
+  [cr_mfr]
     type = VolumetricFlowRate
     advected_quantity = rho
     vel_x = 'superficial_vel_x'
     vel_y = 'superficial_vel_y'
     boundary = 'control_rod_outlet'
     rhie_chow_user_object = pins_rhie_chow_interpolator
+    outputs = none
+  []
+
+  [cr_mfr_fraction]
+    type = ParsedPostprocessor
+    pp_names = 'cr_mfr inlet_mfr'
+    function = 'abs(cr_mfr / inlet_mfr * 100)'
   []
 
   [inlet_pressure]
@@ -723,7 +745,7 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     variable = pressure
     boundary = outlet
     outputs = none
-  [] 
+  []
 
   [pressure_drop]
     type = ParsedPostprocessor
@@ -731,55 +753,7 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     function = 'inlet_pressure - outlet_pressure'
   []
 
-  [integral_density]
-    type = ADElementIntegralFunctorPostprocessor
-    functor = rho
-    outputs = none
-    block = '1 2 3 5 6 7 8'
-  []
-
-  [average_density]
-    type = ParsedPostprocessor
-    pp_names = 'volume integral_density'
-    function = 'integral_density / volume'
-  []
-
-  [integral_mu]
-    type = ADElementIntegralFunctorPostprocessor
-    functor = mu
-    outputs = none
-    block = '1 2 3 5 6 7 8'
-  []
-
-  [average_mu]
-    type = ParsedPostprocessor
-    pp_names = 'volume integral_mu'
-    function = 'integral_mu / volume'
-  []
-
-  [area]
-    type = AreaPostprocessor
-    boundary = outlet
-    outputs = none
-  []
-
-  [volume]
-    type = VolumePostprocessor
-  []
-
-  [total_power]
-    type = FunctionElementIntegral
-    function = heat_source_fn
-    block = pebble_bed
-  []
-
-  [pbpower_density]
-    type = ParsedPostprocessor
-    pp_names = 'core_volume total_power'
-    function = 'total_power / core_volume'
-  [] 
-
-  [Enthalpy_inlet]
+  [enthalpy_inlet]
     type = VolumetricFlowRate
     boundary = inlet
     vel_x = superficial_vel_x
@@ -787,9 +761,10 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     rhie_chow_user_object = 'pins_rhie_chow_interpolator'
     advected_quantity = 'rho_cp_temp'
     advected_interp_method = 'upwind'
+    outputs = none
   []
 
-  [Enthalpy_outlet]
+  [enthalpy_outlet]
     type = VolumetricFlowRate
     boundary = outlet
     vel_x = superficial_vel_x
@@ -797,11 +772,29 @@ flow_vel = ${fparse mass_flow_rate / flow_area / density}
     rhie_chow_user_object = 'pins_rhie_chow_interpolator'
     advected_quantity = 'rho_cp_temp'
     advected_interp_method = 'upwind'
+    outputs = none
   []
 
-  [core_volume]
-    type = VolumePostprocessor
-    block = 'pebble_bed'
+  [enthalpy_balance]
+    type = ParsedPostprocessor
+    pp_names = 'enthalpy_inlet enthalpy_outlet'
+    function = 'abs(enthalpy_outlet) - abs(enthalpy_inlet)'
+  []
+
+  [heat_source_integral]
+    type = ElementIntegralFunctorPostprocessor
+    functor = heat_source_fn
+    block = pebble_bed
+  []
+
+  [mass_flux_weighted_Tf_out]
+    type = MassFluxWeightedFlowRate
+    vel_x = superficial_vel_x
+    vel_y = superficial_vel_y
+    density = rho
+    rhie_chow_user_object = 'pins_rhie_chow_interpolator'
+    boundary = outlet
+    advected_quantity = T_fluid
   []
 []
 
