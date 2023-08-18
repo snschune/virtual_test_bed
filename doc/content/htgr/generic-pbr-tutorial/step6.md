@@ -67,22 +67,17 @@ The characteristic length in the riser is set here:
 
 ## Results
 
+In [step6T_fluid], the fluid temperature and flow field are shown. The main difference of Step 6 to the previous steps is that 
+the flow turns multiple times before reaching the outlet.
+In [step6T_solid], the solid temperature along with the outline of the fluid domain are shown.
+
 !media generic-pbr-tutorial/T_fluidP6.png
-        style=width:30%
+        style=width:100%
         id=step6T_fluid
-        caption= Tempurature of the fluid for Step 6.
+        caption= Fluid temperature and flow field for Step 6.
 
 !media generic-pbr-tutorial/T_solidP6.png
-        style=width:30%
+        style=width:100%
         id=step6T_solid
-        caption= Tempurature of the solid for Step 6.
-        
-!media generic-pbr-tutorial/PressureP6.png
-        style=width:30%
-        id=step6Pressure
-        caption= Pressure of the system for Step 6.
+        caption= Solid temperature for Step 6.
 
-!media generic-pbr-tutorial/VelocityP6.png
-        style=width:30%
-        id=step6Velocity
-        caption= Velocity of the system for Step 6.
