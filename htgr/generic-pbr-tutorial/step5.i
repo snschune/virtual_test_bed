@@ -255,6 +255,7 @@ bottom_reflector_Dh = 0.1
     T_fluid = ${T_inlet}
     speed = speed
     characteristic_length = characteristic_length
+    block = 'pebble_bed cavity bottom_reflector'
   []
 
   [graphite_rho_and_cp_bed]

@@ -1,9 +1,9 @@
 # Authored: Joseph R. Brennan, Mentor: Mustafa K. Jaradat, Sebastian Schunert, and Paolo Balestra
 outlet_pressure = 5.84e+6
 T_inlet = 533.25
-inlet_density = 5.25 #5.2532   6.426433e+01
+inlet_density = 5.291
 pebble_diameter = 0.06
-thermal_mass_scaling = 1
+thermal_mass_scaling = 0.1
 
 mass_flow_rate = 64.3
 riser_inner_radius = 1.701
@@ -377,6 +377,7 @@ riser_Dh = 0.17
     T_fluid = ${T_inlet}
     speed = speed
     characteristic_length = characteristic_length
+    block = 'pebble_bed cavity bottom_reflector upper_plenum bottom_plenum riser'    
   []
 
   [graphite_rho_and_cp_bed]
@@ -522,7 +523,7 @@ riser_Dh = 0.17
 
 [Executioner]
   type = Transient
-  end_time = 1e5
+  end_time = 5e5
   [TimeStepper]
     type = IterationAdaptiveDT
     iteration_window = 2

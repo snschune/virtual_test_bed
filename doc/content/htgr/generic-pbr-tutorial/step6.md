@@ -8,8 +8,8 @@ The porosities of the upper plenum, bottom plenum and riser are $0.2$, $0.2$ and
 
 ## Updating and Adding Parameters
 
-We adjust `top_core` to account for the addition of the bottom plenum, add the hydraulic diameter of the riser, `riser_Dh`, and add a Darcy coefficient for the 
-plenums, `c_drag`. The new set of parameters
+We adjust `top_core` to account for the addition of the bottom plenum, add the hydraulic diameter of the riser, `riser_Dh`, add a Darcy coefficient for the 
+plenums, `c_drag`, and reduce the `thermal_mass_scaling` to $0.1$ to accelerate convergence to steady-state. The new set of parameters
 is given by:
 
 !listing htgr/generic-pbr-tutorial/step6.i start=outlet_pressure end=Mesh

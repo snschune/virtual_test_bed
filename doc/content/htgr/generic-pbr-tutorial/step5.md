@@ -35,6 +35,11 @@ Step 5 is the first model with solid-only (i.e., no flow) blocks. Therefore, the
 
 !listing htgr/generic-pbr-tutorial/step5.i start=NavierStokesFV end=dynamic_viscosity
 
+It is also imperative to block-restrict the fluid properties object to only
+operate on the fluid blocks:
+
+!listing htgr/generic-pbr-tutorial/step5.i block=fluid_props_to_mat_props
+
 ## The Pebble-bed Geometry Object
 
 The pebble-bed geometry object is used by several materials to modify properties at the
