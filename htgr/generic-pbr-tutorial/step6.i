@@ -308,7 +308,7 @@ riser_Dh = 0.17
 [Modules]
   [NavierStokesFV]
     # general control parameters
-    compressibility = 'incompressible'
+    compressibility = 'weakly-compressible'
     porous_medium_treatment = true
     add_energy_equation = true
     block = 'pebble_bed cavity bottom_reflector upper_plenum bottom_plenum riser'
@@ -324,16 +324,12 @@ riser_Dh = 0.17
     # initial conditions
     initial_velocity = '0 0 0'
     initial_pressure = 5.4e6
+    initial_temperature = ${T_inlet}
 
     # inlet boundary conditions
     inlet_boundaries = inlet
     momentum_inlet_types = fixed-velocity
     momentum_inlet_function = '0 ${flow_vel}'
-    #momentum_inlet_types = 'flux-mass'
-    #flux_inlet_pps = '64.3'
-    #flux_inlet_directions = '0 1 0'
-    
-
     energy_inlet_types = fixed-temperature
     energy_inlet_function = '${T_inlet}'
 
@@ -530,7 +526,7 @@ riser_Dh = 0.17
     optimal_iterations = 8
     cutback_factor = 0.8
     growth_factor = 1.6
-    dt = 0.2
+    dt = 0.05
   []
   line_search = l2
   solve_type = 'NEWTON'
@@ -538,7 +534,7 @@ riser_Dh = 0.17
   petsc_options_value = 'lu NONZERO'
   nl_rel_tol = 1e-6
   nl_abs_tol = 1e-5
-  nl_max_its = 15
+  nl_max_its = 30
   automatic_scaling = true
 []
 
