@@ -19,3 +19,8 @@
 [SAM Generic Pebble Bed HTGR model](generic-pbr/index.md)
 
 [LEU Pulse](leu_pulse/index.md)
+
+[Pronghorn Generic Pebble Bed HTGR Tutorial](generic-pbr-tutorial/index.md)
+
+[HTGR Tutorial](htgr_Tutorial.md) 
+
